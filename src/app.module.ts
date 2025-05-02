@@ -4,7 +4,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import databaseConfig from './config/database.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { HealthModule } from './health/health.module';
+import { HealthModule } from './modules/health/health.module';
+import { StocksModule } from './modules/stocks/stocks.module';
+import { PortfoliosModule } from './modules/portfolios/portfolios.module';
+import { TransactionsModule } from './modules/transactions/transactions.module';
 
 @Module({
   imports: [
@@ -27,6 +30,9 @@ import { HealthModule } from './health/health.module';
       }),
     }),
     HealthModule,
+    StocksModule,
+    PortfoliosModule,
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
