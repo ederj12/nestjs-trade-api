@@ -1,0 +1,286 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Project Setup and Environment Configuration",
+      "description": "Initialize NestJS project with TypeScript, ESLint, and configure Docker for PostgreSQL",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Create a new NestJS project using the CLI. Configure TypeScript and ESLint according to best practices. Set up Docker Compose for PostgreSQL database. Create environment configuration files for development and production environments. Configure API key for vendor integration.",
+      "testStrategy": "Verify project structure, ensure Docker container starts correctly, and validate environment configuration loading.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Initialize NestJS Project with TypeScript Configuration",
+          "description": "Set up a new NestJS project with proper TypeScript configuration, including strict mode and proper tsconfig settings.",
+          "dependencies": [],
+          "details": "1. Install NestJS CLI globally: `npm i -g @nestjs/cli`\n2. Create a new project with strict mode: `nest new project-name --strict`\n3. Review and enhance tsconfig.json with additional settings:\n   - Set `\"moduleResolution\": \"node\"`\n   - Enable `\"esModuleInterop\": true`\n   - Set `\"skipLibCheck\": true`\n   - Configure paths for module aliases if needed\n4. Update package.json scripts for development, build, and production\n5. Test the setup by running `npm run start:dev`\n\nTesting approach: Verify the project compiles without errors and the development server starts successfully.",
+          "status": "done",
+          "parentTaskId": 1
+        },
+        {
+          "id": 2,
+          "title": "Configure ESLint and Prettier for Code Quality",
+          "description": "Set up and customize ESLint with TypeScript support and integrate Prettier for consistent code formatting.",
+          "dependencies": [
+            1
+          ],
+          "details": "1. Install additional ESLint dependencies: `npm i -D eslint-plugin-prettier eslint-config-prettier prettier`\n2. Create or update `.eslintrc.js` with NestJS recommended settings:\n```js\nmodule.exports = {\n  parser: '@typescript-eslint/parser',\n  parserOptions: {\n    project: 'tsconfig.json',\n    sourceType: 'module',\n  },\n  plugins: ['@typescript-eslint/eslint-plugin', 'prettier'],\n  extends: [\n    'plugin:@typescript-eslint/recommended',\n    'plugin:prettier/recommended',\n  ],\n  root: true,\n  env: {\n    node: true,\n    jest: true,\n  },\n  ignorePatterns: ['.eslintrc.js'],\n  rules: {\n    '@typescript-eslint/explicit-function-return-type': 'warn',\n    '@typescript-eslint/explicit-module-boundary-types': 'warn',\n    '@typescript-eslint/no-explicit-any': 'error',\n  },\n};\n```\n3. Create `.prettierrc` file with formatting rules\n4. Add lint scripts to package.json: `\"lint\": \"eslint \\\"{src,apps,libs,test}/**/*.ts\\\" --fix\"`\n5. Configure VS Code settings for ESLint and Prettier integration\n\nTesting approach: Run `npm run lint` to verify code quality rules are applied correctly.",
+          "status": "done",
+          "parentTaskId": 1
+        },
+        {
+          "id": 3,
+          "title": "Set Up Docker and Docker Compose for PostgreSQL",
+          "description": "Configure Docker and Docker Compose to run PostgreSQL in a containerized environment for local development.",
+          "dependencies": [
+            1
+          ],
+          "details": "1. Create a `docker-compose.yml` file in the project root:\n```yaml\nversion: '3.8'\nservices:\n  postgres:\n    image: postgres:16\n    restart: always\n    environment:\n      POSTGRES_USER: ${DB_USER}\n      POSTGRES_PASSWORD: ${DB_PASSWORD}\n      POSTGRES_DB: ${DB_NAME}\n    ports:\n      - \"${DB_PORT}:5432\"\n    volumes:\n      - pgdata:/var/lib/postgresql/data\n  \n  # Optional: Add pgAdmin for database management\n  pgadmin:\n    image: dpage/pgadmin4\n    restart: always\n    environment:\n      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}\n      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}\n    ports:\n      - \"5050:80\"\n    depends_on:\n      - postgres\n\nvolumes:\n  pgdata:\n```\n2. Create a `.dockerignore` file to exclude unnecessary files\n3. Create a basic Dockerfile for the NestJS application:\n```Dockerfile\nFROM node:20-alpine\n\nWORKDIR /app\n\nCOPY package*.json ./\n\nRUN npm install\n\nCOPY . .\n\nRUN npm run build\n\nCMD [\"node\", \"dist/main\"]\n```\n4. Test Docker setup with `docker-compose up -d`\n5. Verify PostgreSQL connection\n\nTesting approach: Run `docker-compose ps` to verify containers are running, and attempt to connect to PostgreSQL using a client tool.",
+          "status": "done",
+          "parentTaskId": 1
+        },
+        {
+          "id": 4,
+          "title": "Configure Environment Variables and Configuration Module",
+          "description": "Set up environment configuration for different environments (development, production) and implement NestJS ConfigModule for accessing environment variables.",
+          "dependencies": [
+            1,
+            3
+          ],
+          "details": "1. Install required packages: `npm i @nestjs/config dotenv`\n2. Create environment files:\n   - `.env.example` (template with dummy values)\n   - `.env.development` (development environment)\n   - `.env.production` (production environment)\n   - `.env.test` (testing environment)\n3. Add environment files to `.gitignore` except for `.env.example`\n4. Create a base `.env` file with common variables:\n```\n# Application\nPORT=3000\nNODE_ENV=development\n\n# Database\nDB_HOST=localhost\nDB_PORT=5432\nDB_USER=nestuser\nDB_PASSWORD=nestpass\nDB_NAME=nestdb\n\n# API Keys\nVENDOR_API_KEY=your_api_key_here\n\n# Optional PgAdmin\nPGADMIN_EMAIL=admin@example.com\nPGADMIN_PASSWORD=adminpass\n```\n5. Configure ConfigModule in app.module.ts:\n```typescript\nimport { Module } from '@nestjs/common';\nimport { ConfigModule, ConfigService } from '@nestjs/config';\n\n@Module({\n  imports: [\n    ConfigModule.forRoot({\n      isGlobal: true,\n      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,\n      validationSchema: Joi.object({ // Optional: add Joi validation\n        NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),\n        PORT: Joi.number().default(3000),\n        // Add other environment variables validation\n      }),\n    }),\n    // Other modules\n  ],\n})\nexport class AppModule {}\n```\n6. Create a configuration service for accessing environment variables\n\nTesting approach: Create a simple endpoint that returns non-sensitive configuration values to verify the ConfigModule is working correctly.\n\n<info added on 2025-05-02T03:06:36.951Z>\nI'll update the task with the requested information:\n\nSince we already have a working .env file with the basic NestJS setup, this task should focus on extending the existing configuration:\n\n1. Review the existing .env file and ConfigModule setup\n2. Add the required database connection variables to the existing .env file:\n   ```\n   # Database\n   DB_HOST=localhost\n   DB_PORT=5432\n   DB_USER=nestuser\n   DB_PASSWORD=nestpass\n   DB_NAME=nestdb\n   ```\n\n3. Update the ConfigModule configuration to include validation for the new variables:\n   ```typescript\n   // Add to existing Joi validation schema\n   DB_HOST: Joi.string().required(),\n   DB_PORT: Joi.number().default(5432),\n   DB_USER: Joi.string().required(),\n   DB_PASSWORD: Joi.string().required(),\n   DB_NAME: Joi.string().required(),\n   ```\n\n4. Create a database configuration factory for TypeORM:\n   ```typescript\n   // src/config/database.config.ts\n   import { registerAs } from '@nestjs/config';\n\n   export default registerAs('database', () => ({\n     host: process.env.DB_HOST,\n     port: parseInt(process.env.DB_PORT, 10) || 5432,\n     username: process.env.DB_USER,\n     password: process.env.DB_PASSWORD,\n     database: process.env.DB_NAME,\n   }));\n   ```\n\n5. Import and use the database configuration in the TypeORM module:\n   ```typescript\n   // In the module where TypeORM is configured\n   TypeOrmModule.forRootAsync({\n     inject: [ConfigService],\n     useFactory: (configService: ConfigService) => ({\n       ...configService.get('database'),\n       type: 'postgres',\n       synchronize: configService.get('NODE_ENV') !== 'production',\n       autoLoadEntities: true,\n     }),\n   }),\n   ```\n</info added on 2025-05-02T03:06:36.951Z>",
+          "status": "done",
+          "parentTaskId": 1
+        },
+        {
+          "id": 5,
+          "title": "Set Up Database Connection and Project Structure",
+          "description": "Configure TypeORM or Prisma for PostgreSQL connection and establish the initial project structure with core modules.",
+          "dependencies": [
+            1,
+            3,
+            4
+          ],
+          "details": "1. Install TypeORM and PostgreSQL driver: `npm i @nestjs/typeorm typeorm pg`\n2. Configure TypeORM in app.module.ts:\n```typescript\nimport { Module } from '@nestjs/common';\nimport { TypeOrmModule } from '@nestjs/typeorm';\nimport { ConfigModule, ConfigService } from '@nestjs/config';\n\n@Module({\n  imports: [\n    ConfigModule.forRoot({ /* config from previous task */ }),\n    TypeOrmModule.forRootAsync({\n      imports: [ConfigModule],\n      inject: [ConfigService],\n      useFactory: (configService: ConfigService) => ({\n        type: 'postgres',\n        host: configService.get('DB_HOST'),\n        port: configService.get('DB_PORT'),\n        username: configService.get('DB_USER'),\n        password: configService.get('DB_PASSWORD'),\n        database: configService.get('DB_NAME'),\n        entities: [__dirname + '/**/*.entity{.ts,.js}'],\n        synchronize: configService.get('NODE_ENV') !== 'production',\n        logging: configService.get('NODE_ENV') === 'development',\n      }),\n    }),\n  ],\n})\nexport class AppModule {}\n```\n3. Create core project structure:\n   - `src/common/` - Shared utilities, guards, filters, etc.\n   - `src/config/` - Configuration files and services\n   - `src/modules/` - Feature modules\n   - `src/main.ts` - Entry point with global configurations\n4. Set up a health check module:\n```typescript\n// src/modules/health/health.module.ts\nimport { Module } from '@nestjs/common';\nimport { TerminusModule } from '@nestjs/terminus';\nimport { HealthController } from './health.controller';\n\n@Module({\n  imports: [TerminusModule],\n  controllers: [HealthController],\n})\nexport class HealthModule {}\n```\n5. Configure API key security in a dedicated service\n\nTesting approach: Create a simple entity and repository, then test database connection by performing basic CRUD operations. Verify health check endpoint returns successful status.",
+          "status": "pending",
+          "parentTaskId": 1
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Database Schema Design and Implementation",
+      "description": "Design and implement the database schema for stocks, portfolios, and transactions",
+      "status": "pending",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "details": "Create database entities for: Stocks (id, symbol, name, price, lastUpdated), Users (id, name, email), Portfolios (userId, stockId, quantity), Transactions (id, userId, stockId, quantity, price, status, timestamp). Implement TypeORM entities and migrations. Set up database connection in the NestJS application.",
+      "testStrategy": "Run migrations to verify schema creation. Write unit tests for entity relationships and constraints.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Define Entity Relationships and Create TypeORM Entities",
+          "description": "Design and implement the core TypeORM entities with proper relationships, data types, and validation decorators for the financial application.",
+          "dependencies": [],
+          "details": "1. Create a `Stock` entity with properties: id (PK), symbol (unique), name, price (decimal), lastUpdated (timestamp), and optional fields like sector and exchange.\n2. Create a `User` entity with properties: id (PK), name, email (unique), and createdAt.\n3. Create a `Portfolio` entity with a many-to-one relationship with User and a many-to-many relationship with Stock (through PortfolioHolding).\n4. Create a `PortfolioHolding` entity to represent the many-to-many relationship between Portfolio and Stock with additional properties: quantity and averagePurchasePrice.\n5. Create a `Transaction` entity with properties: id (PK), type (enum: BUY/SELL), quantity, price, status, timestamp, and relationships to User and Stock.\n6. Implement proper TypeORM decorators for relationships, indices, and constraints.\n7. Add validation decorators from class-validator for input validation.\n8. Test by validating the entity definitions compile correctly.",
+          "status": "pending",
+          "parentTaskId": 2
+        },
+        {
+          "id": 2,
+          "title": "Configure Database Connection in NestJS",
+          "description": "Set up the database connection configuration in the NestJS application with proper environment variable support and Docker integration.",
+          "dependencies": [],
+          "details": "1. Create a database configuration module that reads from environment variables.\n2. Configure TypeORM in the app module using the `TypeOrmModule.forRoot()` method.\n3. Set up connection parameters (host, port, username, password, database name) with defaults and environment variable overrides.\n4. Configure connection pooling with appropriate settings for the application's expected load.\n5. Implement retry logic for database connection failures.\n6. Set up logging for database operations (configurable by environment).\n7. Create a health check endpoint that verifies database connectivity.\n8. Test the connection by running the application and verifying it connects to the database successfully.",
+          "status": "pending",
+          "parentTaskId": 2
+        },
+        {
+          "id": 3,
+          "title": "Create Database Migration Strategy",
+          "description": "Implement a robust migration strategy using TypeORM migrations to handle schema changes and versioning.",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "1. Configure TypeORM CLI in package.json for migration commands.\n2. Create a base migration script that generates the initial schema from entities.\n3. Set up a migration directory structure to organize migration files.\n4. Implement a script to generate migration files based on entity changes.\n5. Create a migration execution script for CI/CD pipelines.\n6. Add migration versioning to track applied migrations.\n7. Implement rollback functionality for failed migrations.\n8. Test the migration process by generating and running a migration, then verifying the schema matches the expected structure.",
+          "status": "pending",
+          "parentTaskId": 2
+        },
+        {
+          "id": 4,
+          "title": "Implement Data Integrity Constraints and Indices",
+          "description": "Enhance the database schema with appropriate constraints, indices, and triggers to ensure data integrity and query performance.",
+          "dependencies": [
+            1,
+            3
+          ],
+          "details": "1. Add unique constraints for stock symbols, user emails, and portfolio-stock combinations.\n2. Create indices for frequently queried columns (e.g., stock symbol, transaction dates, user email).\n3. Implement check constraints to ensure transaction quantities and prices are positive.\n4. Add foreign key constraints with appropriate cascade behaviors.\n5. Create composite indices for relationship queries (e.g., finding all transactions for a specific stock and user).\n6. Implement database-level default values for timestamps and status fields.\n7. Add appropriate collations for text fields to ensure case-insensitive searches where needed.\n8. Test by attempting operations that should violate constraints and verifying they are rejected.",
+          "status": "pending",
+          "parentTaskId": 2
+        },
+        {
+          "id": 5,
+          "title": "Develop Repository Pattern Implementation",
+          "description": "Create TypeORM repositories with custom methods for common data access patterns and transaction management.",
+          "dependencies": [
+            1,
+            2,
+            4
+          ],
+          "details": "1. Create repository classes for each entity extending TypeORM's Repository.\n2. Implement custom query methods for common operations (e.g., findPortfolioWithHoldings, getTransactionHistory).\n3. Add transaction management for operations that affect multiple entities (e.g., executing a stock purchase).\n4. Implement pagination for large result sets (e.g., transaction history).\n5. Create query builder methods for complex filtering and sorting.\n6. Add caching strategies for frequently accessed, rarely changing data.\n7. Implement soft delete functionality for relevant entities.\n8. Test repository methods with unit tests using an in-memory database or test database.",
+          "status": "pending",
+          "parentTaskId": 2
+        },
+        {
+          "id": 6,
+          "title": "Integrate Database with Docker Development Environment",
+          "description": "Configure the database to work seamlessly with Docker for development, testing, and CI/CD environments.",
+          "dependencies": [
+            2,
+            3
+          ],
+          "details": "1. Create a docker-compose.yml file that includes a PostgreSQL service with appropriate volume mapping.\n2. Configure environment variables for database connection in the Docker environment.\n3. Set up initialization scripts to create the database and roles on container startup.\n4. Implement a wait-for-db script to ensure the application waits for the database to be ready.\n5. Create separate database configurations for development, testing, and production environments.\n6. Set up a seeding mechanism to populate the database with test data for development.\n7. Configure database backup and restore procedures for Docker environments.\n8. Test the complete setup by bringing up the Docker environment, running migrations, and verifying the application can connect and perform operations.",
+          "status": "pending",
+          "parentTaskId": 2
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Vendor API Integration Service",
+      "description": "Create service to interact with the vendor API for stock data",
+      "status": "pending",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "details": "Implement a service that handles all interactions with the vendor API. Create methods for fetching stock listings with pagination support using the nextToken system. Implement proper error handling for API failures including timeouts, rate limits, and server errors. Use Axios or similar HTTP client with interceptors for adding the x-api-key header.",
+      "testStrategy": "Create mock responses to test API integration. Verify error handling with simulated failures. Test pagination functionality."
+    },
+    {
+      "id": 4,
+      "title": "Stock Caching Mechanism",
+      "description": "Implement caching system for stock data considering 5-minute price updates",
+      "status": "pending",
+      "dependencies": [
+        2,
+        3
+      ],
+      "priority": "medium",
+      "details": "Create a caching service that stores stock data in memory and/or database. Implement a mechanism to refresh stock prices every 5 minutes. Use NestJS cache module or implement a custom solution. Ensure cache invalidation works correctly. Add background job to periodically update stock prices from the vendor API.",
+      "testStrategy": "Test cache hit/miss scenarios. Verify cache invalidation after 5 minutes. Measure performance improvements with caching enabled vs. disabled."
+    },
+    {
+      "id": 5,
+      "title": "Stock Listing API Endpoints",
+      "description": "Create endpoints for retrieving stock listings with pagination",
+      "status": "pending",
+      "dependencies": [
+        3,
+        4
+      ],
+      "priority": "high",
+      "details": "Implement REST endpoints for: GET /stocks (list all stocks with pagination), GET /stocks/:id (get single stock details). Handle query parameters for pagination. Implement DTO validation. Return appropriate HTTP status codes and error messages. Use the caching mechanism to optimize response times.",
+      "testStrategy": "Write integration tests for each endpoint. Test pagination functionality. Verify response formats and status codes."
+    },
+    {
+      "id": 6,
+      "title": "Portfolio Management Service",
+      "description": "Implement service for managing user stock portfolios",
+      "status": "pending",
+      "dependencies": [
+        2,
+        4
+      ],
+      "priority": "high",
+      "details": "Create a service to manage user portfolios. Implement methods to retrieve, create, and update portfolio entries. Calculate portfolio valuation based on current stock prices. Handle edge cases like empty portfolios or invalid stock references. Ensure data consistency when updating portfolios.",
+      "testStrategy": "Write unit tests for portfolio calculations. Test edge cases and error scenarios. Verify portfolio valuation accuracy."
+    },
+    {
+      "id": 7,
+      "title": "Portfolio API Endpoints",
+      "description": "Create endpoints for retrieving and managing user portfolios",
+      "status": "pending",
+      "dependencies": [
+        6
+      ],
+      "priority": "high",
+      "details": "Implement REST endpoints for: GET /portfolios/:userId (get user portfolio with valuation), GET /portfolios/:userId/stocks (get detailed list of stocks in portfolio). Return appropriate HTTP status codes and error messages. Include current valuation in the response.",
+      "testStrategy": "Write integration tests for each endpoint. Verify response formats and status codes. Test with various portfolio sizes and compositions."
+    },
+    {
+      "id": 8,
+      "title": "Transaction Processing Service",
+      "description": "Implement service for processing stock purchase transactions",
+      "status": "pending",
+      "dependencies": [
+        4,
+        6
+      ],
+      "priority": "high",
+      "details": "Create a service to process stock purchase transactions. Implement price validation logic (within 2% of current price). Handle transaction recording and portfolio updates atomically. Implement retry mechanism for failed transactions. Use database transactions to ensure data consistency.",
+      "testStrategy": "Write unit tests for price validation logic. Test transaction processing with various scenarios. Verify portfolio updates after transactions."
+    },
+    {
+      "id": 9,
+      "title": "Transaction API Endpoints",
+      "description": "Create endpoints for executing stock purchase transactions",
+      "status": "pending",
+      "dependencies": [
+        8
+      ],
+      "priority": "high",
+      "details": "Implement REST endpoint: POST /transactions (execute purchase transaction). Validate request body using DTOs. Return appropriate HTTP status codes and detailed error messages. Include transaction details in the response. Implement idempotency to prevent duplicate transactions.",
+      "testStrategy": "Write integration tests for transaction endpoint. Test various scenarios including valid purchases, price validation failures, and insufficient quantities."
+    },
+    {
+      "id": 10,
+      "title": "Reporting Service Implementation",
+      "description": "Create service for generating daily transaction reports",
+      "status": "pending",
+      "dependencies": [
+        8
+      ],
+      "priority": "medium",
+      "details": "Implement a service to generate daily transaction reports. Create data aggregation logic to summarize successful and failed transactions. Format report data for email delivery. Implement scheduling using NestJS schedule module or similar. Store report history in the database.",
+      "testStrategy": "Test report generation with various transaction scenarios. Verify data aggregation accuracy. Test scheduling functionality."
+    },
+    {
+      "id": 11,
+      "title": "Email Delivery System",
+      "description": "Implement email service for sending daily reports",
+      "status": "pending",
+      "dependencies": [
+        10
+      ],
+      "priority": "medium",
+      "details": "Integrate with an email delivery service (e.g., Nodemailer, SendGrid). Implement email templates for daily reports. Create retry mechanism for failed email deliveries. Configure email settings in environment variables. Implement email queue to handle delivery asynchronously.",
+      "testStrategy": "Test email delivery with mock transport. Verify email content and formatting. Test retry mechanism with simulated failures."
+    },
+    {
+      "id": 12,
+      "title": "Documentation and Final Testing",
+      "description": "Create comprehensive documentation and perform final testing",
+      "status": "pending",
+      "dependencies": [
+        5,
+        7,
+        9,
+        11
+      ],
+      "priority": "medium",
+      "details": "Create README.md with setup instructions. Write REPORT.md with architecture details. Document API endpoints using Swagger or similar. Create environment setup guide. Perform integration testing of the entire system. Verify error handling and edge cases. Ensure code quality with ESLint. Review and refactor code as needed.",
+      "testStrategy": "Perform end-to-end testing of the entire system. Verify documentation accuracy. Test setup process following the documentation."
+    }
+  ],
+  "metadata": {
+    "projectName": "Fuse Finance Stock Trading Backend Service",
+    "totalTasks": 12,
+    "sourceFile": "/Users/edervasquez/Documents/cursor/fuse-home-task/scripts/prd.txt",
+    "generatedAt": "2023-11-28"
+  }
+}

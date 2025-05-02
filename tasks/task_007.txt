@@ -1,0 +1,11 @@
+# Task ID: 7
+# Title: Portfolio API Endpoints
+# Status: pending
+# Dependencies: 6
+# Priority: high
+# Description: Create endpoints for retrieving and managing user portfolios
+# Details:
+Implement REST endpoints for: GET /portfolios/:userId (get user portfolio with valuation), GET /portfolios/:userId/stocks (get detailed list of stocks in portfolio). Return appropriate HTTP status codes and error messages. Include current valuation in the response.
+
+# Test Strategy:
+Write integration tests for each endpoint. Verify response formats and status codes. Test with various portfolio sizes and compositions.

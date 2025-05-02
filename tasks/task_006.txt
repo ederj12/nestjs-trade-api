@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Portfolio Management Service
+# Status: pending
+# Dependencies: 2, 4
+# Priority: high
+# Description: Implement service for managing user stock portfolios
+# Details:
+Create a service to manage user portfolios. Implement methods to retrieve, create, and update portfolio entries. Calculate portfolio valuation based on current stock prices. Handle edge cases like empty portfolios or invalid stock references. Ensure data consistency when updating portfolios.
+
+# Test Strategy:
+Write unit tests for portfolio calculations. Test edge cases and error scenarios. Verify portfolio valuation accuracy.

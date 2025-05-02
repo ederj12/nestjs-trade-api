@@ -1,0 +1,106 @@
+# Fuse Finance Stock Trading Backend Service PRD
+
+## Project Overview
+Development of a production-ready backend service for stock trading operations that integrates with Fuse's mock vendor API. The service will handle stock listings, portfolio management, and transaction processing with a focus on reliability and real-time price accuracy.
+
+## Core Requirements
+
+### Technology Stack
+- Node.js backend service (Nestjs)
+- Database system (Postgresql) with Docker
+- Email service integration for reports
+- Typescript
+- Eslint
+
+### API Integration
+Base URL: https://api.challenge.fusefinance.com
+Authentication: x-api-key header required (value: nSbPbFJfe95BFZufiDwF32UhqZLEVQ5K4wdtJI2e)
+
+### Required Features
+
+1. Stock Listing Service
+   - Integrate with vendor API to fetch available stocks
+   - Handle pagination using nextToken system
+   - Cache stock data appropriately considering 5-minute price updates
+   - Implement error handling for unreliable vendor API
+
+2. Portfolio Management
+   - Retrieve and manage user stock portfolios
+   - Track stock quantities per user
+   - Maintain accurate portfolio valuations
+
+3. Transaction Processing
+   - Execute stock purchase transactions
+   - Validate transaction prices (within 2% of current stock price)
+   - Implement robust error handling
+   - Record transaction outcomes
+
+4. Reporting System
+   - Generate daily email reports
+   - Include successful and failed transactions
+   - Implement reliable email delivery system
+
+### Technical Considerations
+
+1. Reliability Requirements
+   - Handle vendor API downtime gracefully
+   - Implement retry mechanisms
+   - Maintain data consistency
+   - Log all critical operations
+
+2. Price Management
+   - Track stock price updates (every 5 minutes)
+   - Implement price validation logic (2% threshold)
+   - Handle price synchronization
+
+3. Error Handling
+   - Comprehensive error handling for API failures
+   - Transaction validation errors
+   - System-level error management
+
+### Non-Functional Requirements
+
+1. Performance
+   - Fast response times for API endpoints
+   - Efficient data caching
+   - Optimized database queries
+
+2. Scalability
+   - Design for potential high load
+   - Efficient resource utilization
+   - Modular architecture
+
+3. Security
+   - Secure API key management
+   - Data validation
+   - Error message security
+
+4. Maintainability
+   - Clean code architecture
+   - Comprehensive documentation
+   - Clear logging
+   - Modular design
+
+### Deliverables
+
+1. Source Code
+   - Production-ready implementation
+   - Clean commit history
+   - Clear commit messages
+
+2. Documentation
+   - README.md with setup instructions
+   - REPORT.md with architecture details
+   - API documentation
+   - Environment setup guide
+
+3. Testing
+   - Unit tests
+   - Integration tests
+   - API endpoint tests
+
+### Out of Scope
+- User management endpoints (GET/UPDATE/DELETE users)
+- Transaction listing endpoint
+- Frontend development
+- User authentication system 

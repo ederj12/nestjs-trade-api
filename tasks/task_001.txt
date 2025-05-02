@@ -1,0 +1,289 @@
+# Task ID: 1
+# Title: Project Setup and Environment Configuration
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Initialize NestJS project with TypeScript, ESLint, and configure Docker for PostgreSQL
+# Details:
+Create a new NestJS project using the CLI. Configure TypeScript and ESLint according to best practices. Set up Docker Compose for PostgreSQL database. Create environment configuration files for development and production environments. Configure API key for vendor integration.
+
+# Test Strategy:
+Verify project structure, ensure Docker container starts correctly, and validate environment configuration loading.
+
+# Subtasks:
+## 1. Initialize NestJS Project with TypeScript Configuration [done]
+### Dependencies: None
+### Description: Set up a new NestJS project with proper TypeScript configuration, including strict mode and proper tsconfig settings.
+### Details:
+1. Install NestJS CLI globally: `npm i -g @nestjs/cli`
+2. Create a new project with strict mode: `nest new project-name --strict`
+3. Review and enhance tsconfig.json with additional settings:
+   - Set `"moduleResolution": "node"`
+   - Enable `"esModuleInterop": true`
+   - Set `"skipLibCheck": true`
+   - Configure paths for module aliases if needed
+4. Update package.json scripts for development, build, and production
+5. Test the setup by running `npm run start:dev`
+
+Testing approach: Verify the project compiles without errors and the development server starts successfully.
+
+## 2. Configure ESLint and Prettier for Code Quality [done]
+### Dependencies: 1.1
+### Description: Set up and customize ESLint with TypeScript support and integrate Prettier for consistent code formatting.
+### Details:
+1. Install additional ESLint dependencies: `npm i -D eslint-plugin-prettier eslint-config-prettier prettier`
+2. Create or update `.eslintrc.js` with NestJS recommended settings:
+```js
+module.exports = {
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: 'tsconfig.json',
+    sourceType: 'module',
+  },
+  plugins: ['@typescript-eslint/eslint-plugin', 'prettier'],
+  extends: [
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
+  ],
+  root: true,
+  env: {
+    node: true,
+    jest: true,
+  },
+  ignorePatterns: ['.eslintrc.js'],
+  rules: {
+    '@typescript-eslint/explicit-function-return-type': 'warn',
+    '@typescript-eslint/explicit-module-boundary-types': 'warn',
+    '@typescript-eslint/no-explicit-any': 'error',
+  },
+};
+```
+3. Create `.prettierrc` file with formatting rules
+4. Add lint scripts to package.json: `"lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"`
+5. Configure VS Code settings for ESLint and Prettier integration
+
+Testing approach: Run `npm run lint` to verify code quality rules are applied correctly.
+
+## 3. Set Up Docker and Docker Compose for PostgreSQL [done]
+### Dependencies: 1.1
+### Description: Configure Docker and Docker Compose to run PostgreSQL in a containerized environment for local development.
+### Details:
+1. Create a `docker-compose.yml` file in the project root:
+```yaml
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  
+  # Optional: Add pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
+```
+2. Create a `.dockerignore` file to exclude unnecessary files
+3. Create a basic Dockerfile for the NestJS application:
+```Dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+CMD ["node", "dist/main"]
+```
+4. Test Docker setup with `docker-compose up -d`
+5. Verify PostgreSQL connection
+
+Testing approach: Run `docker-compose ps` to verify containers are running, and attempt to connect to PostgreSQL using a client tool.
+
+## 4. Configure Environment Variables and Configuration Module [done]
+### Dependencies: 1.1, 1.3
+### Description: Set up environment configuration for different environments (development, production) and implement NestJS ConfigModule for accessing environment variables.
+### Details:
+1. Install required packages: `npm i @nestjs/config dotenv`
+2. Create environment files:
+   - `.env.example` (template with dummy values)
+   - `.env.development` (development environment)
+   - `.env.production` (production environment)
+   - `.env.test` (testing environment)
+3. Add environment files to `.gitignore` except for `.env.example`
+4. Create a base `.env` file with common variables:
+```
+# Application
+PORT=3000
+NODE_ENV=development
+
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=nestuser
+DB_PASSWORD=nestpass
+DB_NAME=nestdb
+
+# API Keys
+VENDOR_API_KEY=your_api_key_here
+
+# Optional PgAdmin
+PGADMIN_EMAIL=admin@example.com
+PGADMIN_PASSWORD=adminpass
+```
+5. Configure ConfigModule in app.module.ts:
+```typescript
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
+      validationSchema: Joi.object({ // Optional: add Joi validation
+        NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+        PORT: Joi.number().default(3000),
+        // Add other environment variables validation
+      }),
+    }),
+    // Other modules
+  ],
+})
+export class AppModule {}
+```
+6. Create a configuration service for accessing environment variables
+
+Testing approach: Create a simple endpoint that returns non-sensitive configuration values to verify the ConfigModule is working correctly.
+
+<info added on 2025-05-02T03:06:36.951Z>
+I'll update the task with the requested information:
+
+Since we already have a working .env file with the basic NestJS setup, this task should focus on extending the existing configuration:
+
+1. Review the existing .env file and ConfigModule setup
+2. Add the required database connection variables to the existing .env file:
+   ```
+   # Database
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_USER=nestuser
+   DB_PASSWORD=nestpass
+   DB_NAME=nestdb
+   ```
+
+3. Update the ConfigModule configuration to include validation for the new variables:
+   ```typescript
+   // Add to existing Joi validation schema
+   DB_HOST: Joi.string().required(),
+   DB_PORT: Joi.number().default(5432),
+   DB_USER: Joi.string().required(),
+   DB_PASSWORD: Joi.string().required(),
+   DB_NAME: Joi.string().required(),
+   ```
+
+4. Create a database configuration factory for TypeORM:
+   ```typescript
+   // src/config/database.config.ts
+   import { registerAs } from '@nestjs/config';
+
+   export default registerAs('database', () => ({
+     host: process.env.DB_HOST,
+     port: parseInt(process.env.DB_PORT, 10) || 5432,
+     username: process.env.DB_USER,
+     password: process.env.DB_PASSWORD,
+     database: process.env.DB_NAME,
+   }));
+   ```
+
+5. Import and use the database configuration in the TypeORM module:
+   ```typescript
+   // In the module where TypeORM is configured
+   TypeOrmModule.forRootAsync({
+     inject: [ConfigService],
+     useFactory: (configService: ConfigService) => ({
+       ...configService.get('database'),
+       type: 'postgres',
+       synchronize: configService.get('NODE_ENV') !== 'production',
+       autoLoadEntities: true,
+     }),
+   }),
+   ```
+</info added on 2025-05-02T03:06:36.951Z>
+
+## 5. Set Up Database Connection and Project Structure [pending]
+### Dependencies: 1.1, 1.3, 1.4
+### Description: Configure TypeORM or Prisma for PostgreSQL connection and establish the initial project structure with core modules.
+### Details:
+1. Install TypeORM and PostgreSQL driver: `npm i @nestjs/typeorm typeorm pg`
+2. Configure TypeORM in app.module.ts:
+```typescript
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ /* config from previous task */ }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DB_HOST'),
+        port: configService.get('DB_PORT'),
+        username: configService.get('DB_USER'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_NAME'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: configService.get('NODE_ENV') !== 'production',
+        logging: configService.get('NODE_ENV') === 'development',
+      }),
+    }),
+  ],
+})
+export class AppModule {}
+```
+3. Create core project structure:
+   - `src/common/` - Shared utilities, guards, filters, etc.
+   - `src/config/` - Configuration files and services
+   - `src/modules/` - Feature modules
+   - `src/main.ts` - Entry point with global configurations
+4. Set up a health check module:
+```typescript
+// src/modules/health/health.module.ts
+import { Module } from '@nestjs/common';
+import { TerminusModule } from '@nestjs/terminus';
+import { HealthController } from './health.controller';
+
+@Module({
+  imports: [TerminusModule],
+  controllers: [HealthController],
+})
+export class HealthModule {}
+```
+5. Configure API key security in a dedicated service
+
+Testing approach: Create a simple entity and repository, then test database connection by performing basic CRUD operations. Verify health check endpoint returns successful status.
+

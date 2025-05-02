@@ -1,0 +1,228 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Project Setup and Environment Configuration",
+      "description": "Initialize NestJS project with TypeScript, ESLint, and configure Docker for PostgreSQL",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Create a new NestJS project using the CLI. Configure TypeScript and ESLint according to best practices. Set up Docker Compose for PostgreSQL database. Create environment configuration files for development and production environments. Configure API key for vendor integration.",
+      "testStrategy": "Verify project structure, ensure Docker container starts correctly, and validate environment configuration loading."
+    },
+    {
+      "id": 2,
+      "title": "Database Schema Design and Implementation",
+      "description": "Design and implement the database schema for stocks, portfolios, and transactions",
+      "status": "pending",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "details": "Create database entities for: Stocks (id, symbol, name, price, lastUpdated), Users (id, name, email), Portfolios (userId, stockId, quantity), Transactions (id, userId, stockId, quantity, price, status, timestamp). Implement TypeORM entities and migrations. Set up database connection in the NestJS application.",
+      "testStrategy": "Run migrations to verify schema creation. Write unit tests for entity relationships and constraints.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Define Entity Relationships and Create TypeORM Entities",
+          "description": "Design and implement the core TypeORM entities with proper relationships, data types, and validation decorators for the financial application.",
+          "dependencies": [],
+          "details": "1. Create a `Stock` entity with properties: id (PK), symbol (unique), name, price (decimal), lastUpdated (timestamp), and optional fields like sector and exchange.\n2. Create a `User` entity with properties: id (PK), name, email (unique), and createdAt.\n3. Create a `Portfolio` entity with a many-to-one relationship with User and a many-to-many relationship with Stock (through PortfolioHolding).\n4. Create a `PortfolioHolding` entity to represent the many-to-many relationship between Portfolio and Stock with additional properties: quantity and averagePurchasePrice.\n5. Create a `Transaction` entity with properties: id (PK), type (enum: BUY/SELL), quantity, price, status, timestamp, and relationships to User and Stock.\n6. Implement proper TypeORM decorators for relationships, indices, and constraints.\n7. Add validation decorators from class-validator for input validation.\n8. Test by validating the entity definitions compile correctly.",
+          "status": "pending",
+          "parentTaskId": 2
+        },
+        {
+          "id": 2,
+          "title": "Configure Database Connection in NestJS",
+          "description": "Set up the database connection configuration in the NestJS application with proper environment variable support and Docker integration.",
+          "dependencies": [],
+          "details": "1. Create a database configuration module that reads from environment variables.\n2. Configure TypeORM in the app module using the `TypeOrmModule.forRoot()` method.\n3. Set up connection parameters (host, port, username, password, database name) with defaults and environment variable overrides.\n4. Configure connection pooling with appropriate settings for the application's expected load.\n5. Implement retry logic for database connection failures.\n6. Set up logging for database operations (configurable by environment).\n7. Create a health check endpoint that verifies database connectivity.\n8. Test the connection by running the application and verifying it connects to the database successfully.",
+          "status": "pending",
+          "parentTaskId": 2
+        },
+        {
+          "id": 3,
+          "title": "Create Database Migration Strategy",
+          "description": "Implement a robust migration strategy using TypeORM migrations to handle schema changes and versioning.",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "1. Configure TypeORM CLI in package.json for migration commands.\n2. Create a base migration script that generates the initial schema from entities.\n3. Set up a migration directory structure to organize migration files.\n4. Implement a script to generate migration files based on entity changes.\n5. Create a migration execution script for CI/CD pipelines.\n6. Add migration versioning to track applied migrations.\n7. Implement rollback functionality for failed migrations.\n8. Test the migration process by generating and running a migration, then verifying the schema matches the expected structure.",
+          "status": "pending",
+          "parentTaskId": 2
+        },
+        {
+          "id": 4,
+          "title": "Implement Data Integrity Constraints and Indices",
+          "description": "Enhance the database schema with appropriate constraints, indices, and triggers to ensure data integrity and query performance.",
+          "dependencies": [
+            1,
+            3
+          ],
+          "details": "1. Add unique constraints for stock symbols, user emails, and portfolio-stock combinations.\n2. Create indices for frequently queried columns (e.g., stock symbol, transaction dates, user email).\n3. Implement check constraints to ensure transaction quantities and prices are positive.\n4. Add foreign key constraints with appropriate cascade behaviors.\n5. Create composite indices for relationship queries (e.g., finding all transactions for a specific stock and user).\n6. Implement database-level default values for timestamps and status fields.\n7. Add appropriate collations for text fields to ensure case-insensitive searches where needed.\n8. Test by attempting operations that should violate constraints and verifying they are rejected.",
+          "status": "pending",
+          "parentTaskId": 2
+        },
+        {
+          "id": 5,
+          "title": "Develop Repository Pattern Implementation",
+          "description": "Create TypeORM repositories with custom methods for common data access patterns and transaction management.",
+          "dependencies": [
+            1,
+            2,
+            4
+          ],
+          "details": "1. Create repository classes for each entity extending TypeORM's Repository.\n2. Implement custom query methods for common operations (e.g., findPortfolioWithHoldings, getTransactionHistory).\n3. Add transaction management for operations that affect multiple entities (e.g., executing a stock purchase).\n4. Implement pagination for large result sets (e.g., transaction history).\n5. Create query builder methods for complex filtering and sorting.\n6. Add caching strategies for frequently accessed, rarely changing data.\n7. Implement soft delete functionality for relevant entities.\n8. Test repository methods with unit tests using an in-memory database or test database.",
+          "status": "pending",
+          "parentTaskId": 2
+        },
+        {
+          "id": 6,
+          "title": "Integrate Database with Docker Development Environment",
+          "description": "Configure the database to work seamlessly with Docker for development, testing, and CI/CD environments.",
+          "dependencies": [
+            2,
+            3
+          ],
+          "details": "1. Create a docker-compose.yml file that includes a PostgreSQL service with appropriate volume mapping.\n2. Configure environment variables for database connection in the Docker environment.\n3. Set up initialization scripts to create the database and roles on container startup.\n4. Implement a wait-for-db script to ensure the application waits for the database to be ready.\n5. Create separate database configurations for development, testing, and production environments.\n6. Set up a seeding mechanism to populate the database with test data for development.\n7. Configure database backup and restore procedures for Docker environments.\n8. Test the complete setup by bringing up the Docker environment, running migrations, and verifying the application can connect and perform operations.",
+          "status": "pending",
+          "parentTaskId": 2
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Vendor API Integration Service",
+      "description": "Create service to interact with the vendor API for stock data",
+      "status": "pending",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "details": "Implement a service that handles all interactions with the vendor API. Create methods for fetching stock listings with pagination support using the nextToken system. Implement proper error handling for API failures including timeouts, rate limits, and server errors. Use Axios or similar HTTP client with interceptors for adding the x-api-key header.",
+      "testStrategy": "Create mock responses to test API integration. Verify error handling with simulated failures. Test pagination functionality."
+    },
+    {
+      "id": 4,
+      "title": "Stock Caching Mechanism",
+      "description": "Implement caching system for stock data considering 5-minute price updates",
+      "status": "pending",
+      "dependencies": [
+        2,
+        3
+      ],
+      "priority": "medium",
+      "details": "Create a caching service that stores stock data in memory and/or database. Implement a mechanism to refresh stock prices every 5 minutes. Use NestJS cache module or implement a custom solution. Ensure cache invalidation works correctly. Add background job to periodically update stock prices from the vendor API.",
+      "testStrategy": "Test cache hit/miss scenarios. Verify cache invalidation after 5 minutes. Measure performance improvements with caching enabled vs. disabled."
+    },
+    {
+      "id": 5,
+      "title": "Stock Listing API Endpoints",
+      "description": "Create endpoints for retrieving stock listings with pagination",
+      "status": "pending",
+      "dependencies": [
+        3,
+        4
+      ],
+      "priority": "high",
+      "details": "Implement REST endpoints for: GET /stocks (list all stocks with pagination), GET /stocks/:id (get single stock details). Handle query parameters for pagination. Implement DTO validation. Return appropriate HTTP status codes and error messages. Use the caching mechanism to optimize response times.",
+      "testStrategy": "Write integration tests for each endpoint. Test pagination functionality. Verify response formats and status codes."
+    },
+    {
+      "id": 6,
+      "title": "Portfolio Management Service",
+      "description": "Implement service for managing user stock portfolios",
+      "status": "pending",
+      "dependencies": [
+        2,
+        4
+      ],
+      "priority": "high",
+      "details": "Create a service to manage user portfolios. Implement methods to retrieve, create, and update portfolio entries. Calculate portfolio valuation based on current stock prices. Handle edge cases like empty portfolios or invalid stock references. Ensure data consistency when updating portfolios.",
+      "testStrategy": "Write unit tests for portfolio calculations. Test edge cases and error scenarios. Verify portfolio valuation accuracy."
+    },
+    {
+      "id": 7,
+      "title": "Portfolio API Endpoints",
+      "description": "Create endpoints for retrieving and managing user portfolios",
+      "status": "pending",
+      "dependencies": [
+        6
+      ],
+      "priority": "high",
+      "details": "Implement REST endpoints for: GET /portfolios/:userId (get user portfolio with valuation), GET /portfolios/:userId/stocks (get detailed list of stocks in portfolio). Return appropriate HTTP status codes and error messages. Include current valuation in the response.",
+      "testStrategy": "Write integration tests for each endpoint. Verify response formats and status codes. Test with various portfolio sizes and compositions."
+    },
+    {
+      "id": 8,
+      "title": "Transaction Processing Service",
+      "description": "Implement service for processing stock purchase transactions",
+      "status": "pending",
+      "dependencies": [
+        4,
+        6
+      ],
+      "priority": "high",
+      "details": "Create a service to process stock purchase transactions. Implement price validation logic (within 2% of current price). Handle transaction recording and portfolio updates atomically. Implement retry mechanism for failed transactions. Use database transactions to ensure data consistency.",
+      "testStrategy": "Write unit tests for price validation logic. Test transaction processing with various scenarios. Verify portfolio updates after transactions."
+    },
+    {
+      "id": 9,
+      "title": "Transaction API Endpoints",
+      "description": "Create endpoints for executing stock purchase transactions",
+      "status": "pending",
+      "dependencies": [
+        8
+      ],
+      "priority": "high",
+      "details": "Implement REST endpoint: POST /transactions (execute purchase transaction). Validate request body using DTOs. Return appropriate HTTP status codes and detailed error messages. Include transaction details in the response. Implement idempotency to prevent duplicate transactions.",
+      "testStrategy": "Write integration tests for transaction endpoint. Test various scenarios including valid purchases, price validation failures, and insufficient quantities."
+    },
+    {
+      "id": 10,
+      "title": "Reporting Service Implementation",
+      "description": "Create service for generating daily transaction reports",
+      "status": "pending",
+      "dependencies": [
+        8
+      ],
+      "priority": "medium",
+      "details": "Implement a service to generate daily transaction reports. Create data aggregation logic to summarize successful and failed transactions. Format report data for email delivery. Implement scheduling using NestJS schedule module or similar. Store report history in the database.",
+      "testStrategy": "Test report generation with various transaction scenarios. Verify data aggregation accuracy. Test scheduling functionality."
+    },
+    {
+      "id": 11,
+      "title": "Email Delivery System",
+      "description": "Implement email service for sending daily reports",
+      "status": "pending",
+      "dependencies": [
+        10
+      ],
+      "priority": "medium",
+      "details": "Integrate with an email delivery service (e.g., Nodemailer, SendGrid). Implement email templates for daily reports. Create retry mechanism for failed email deliveries. Configure email settings in environment variables. Implement email queue to handle delivery asynchronously.",
+      "testStrategy": "Test email delivery with mock transport. Verify email content and formatting. Test retry mechanism with simulated failures."
+    },
+    {
+      "id": 12,
+      "title": "Documentation and Final Testing",
+      "description": "Create comprehensive documentation and perform final testing",
+      "status": "pending",
+      "dependencies": [
+        5,
+        7,
+        9,
+        11
+      ],
+      "priority": "medium",
+      "details": "Create README.md with setup instructions. Write REPORT.md with architecture details. Document API endpoints using Swagger or similar. Create environment setup guide. Perform integration testing of the entire system. Verify error handling and edge cases. Ensure code quality with ESLint. Review and refactor code as needed.",
+      "testStrategy": "Perform end-to-end testing of the entire system. Verify documentation accuracy. Test setup process following the documentation."
+    }
+  ],
+  "metadata": {
+    "projectName": "Fuse Finance Stock Trading Backend Service",
+    "totalTasks": 12,
+    "sourceFile": "/Users/edervasquez/Documents/cursor/fuse-home-task/scripts/prd.txt",
+    "generatedAt": "2023-11-28"
+  }
+}

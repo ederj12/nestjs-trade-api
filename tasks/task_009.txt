@@ -1,0 +1,11 @@
+# Task ID: 9
+# Title: Transaction API Endpoints
+# Status: pending
+# Dependencies: 8
+# Priority: high
+# Description: Create endpoints for executing stock purchase transactions
+# Details:
+Implement REST endpoint: POST /transactions (execute purchase transaction). Validate request body using DTOs. Return appropriate HTTP status codes and detailed error messages. Include transaction details in the response. Implement idempotency to prevent duplicate transactions.
+
+# Test Strategy:
+Write integration tests for transaction endpoint. Test various scenarios including valid purchases, price validation failures, and insufficient quantities.

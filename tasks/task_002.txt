@@ -1,0 +1,91 @@
+# Task ID: 2
+# Title: Database Schema Design and Implementation
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Design and implement the database schema for stocks, portfolios, and transactions
+# Details:
+Create database entities for: Stocks (id, symbol, name, price, lastUpdated), Users (id, name, email), Portfolios (userId, stockId, quantity), Transactions (id, userId, stockId, quantity, price, status, timestamp). Implement TypeORM entities and migrations. Set up database connection in the NestJS application.
+
+# Test Strategy:
+Run migrations to verify schema creation. Write unit tests for entity relationships and constraints.
+
+# Subtasks:
+## 1. Define Entity Relationships and Create TypeORM Entities [pending]
+### Dependencies: None
+### Description: Design and implement the core TypeORM entities with proper relationships, data types, and validation decorators for the financial application.
+### Details:
+1. Create a `Stock` entity with properties: id (PK), symbol (unique), name, price (decimal), lastUpdated (timestamp), and optional fields like sector and exchange.
+2. Create a `User` entity with properties: id (PK), name, email (unique), and createdAt.
+3. Create a `Portfolio` entity with a many-to-one relationship with User and a many-to-many relationship with Stock (through PortfolioHolding).
+4. Create a `PortfolioHolding` entity to represent the many-to-many relationship between Portfolio and Stock with additional properties: quantity and averagePurchasePrice.
+5. Create a `Transaction` entity with properties: id (PK), type (enum: BUY/SELL), quantity, price, status, timestamp, and relationships to User and Stock.
+6. Implement proper TypeORM decorators for relationships, indices, and constraints.
+7. Add validation decorators from class-validator for input validation.
+8. Test by validating the entity definitions compile correctly.
+
+## 2. Configure Database Connection in NestJS [pending]
+### Dependencies: None
+### Description: Set up the database connection configuration in the NestJS application with proper environment variable support and Docker integration.
+### Details:
+1. Create a database configuration module that reads from environment variables.
+2. Configure TypeORM in the app module using the `TypeOrmModule.forRoot()` method.
+3. Set up connection parameters (host, port, username, password, database name) with defaults and environment variable overrides.
+4. Configure connection pooling with appropriate settings for the application's expected load.
+5. Implement retry logic for database connection failures.
+6. Set up logging for database operations (configurable by environment).
+7. Create a health check endpoint that verifies database connectivity.
+8. Test the connection by running the application and verifying it connects to the database successfully.
+
+## 3. Create Database Migration Strategy [pending]
+### Dependencies: 2.1, 2.2
+### Description: Implement a robust migration strategy using TypeORM migrations to handle schema changes and versioning.
+### Details:
+1. Configure TypeORM CLI in package.json for migration commands.
+2. Create a base migration script that generates the initial schema from entities.
+3. Set up a migration directory structure to organize migration files.
+4. Implement a script to generate migration files based on entity changes.
+5. Create a migration execution script for CI/CD pipelines.
+6. Add migration versioning to track applied migrations.
+7. Implement rollback functionality for failed migrations.
+8. Test the migration process by generating and running a migration, then verifying the schema matches the expected structure.
+
+## 4. Implement Data Integrity Constraints and Indices [pending]
+### Dependencies: 2.1, 2.3
+### Description: Enhance the database schema with appropriate constraints, indices, and triggers to ensure data integrity and query performance.
+### Details:
+1. Add unique constraints for stock symbols, user emails, and portfolio-stock combinations.
+2. Create indices for frequently queried columns (e.g., stock symbol, transaction dates, user email).
+3. Implement check constraints to ensure transaction quantities and prices are positive.
+4. Add foreign key constraints with appropriate cascade behaviors.
+5. Create composite indices for relationship queries (e.g., finding all transactions for a specific stock and user).
+6. Implement database-level default values for timestamps and status fields.
+7. Add appropriate collations for text fields to ensure case-insensitive searches where needed.
+8. Test by attempting operations that should violate constraints and verifying they are rejected.
+
+## 5. Develop Repository Pattern Implementation [pending]
+### Dependencies: 2.1, 2.2, 2.4
+### Description: Create TypeORM repositories with custom methods for common data access patterns and transaction management.
+### Details:
+1. Create repository classes for each entity extending TypeORM's Repository.
+2. Implement custom query methods for common operations (e.g., findPortfolioWithHoldings, getTransactionHistory).
+3. Add transaction management for operations that affect multiple entities (e.g., executing a stock purchase).
+4. Implement pagination for large result sets (e.g., transaction history).
+5. Create query builder methods for complex filtering and sorting.
+6. Add caching strategies for frequently accessed, rarely changing data.
+7. Implement soft delete functionality for relevant entities.
+8. Test repository methods with unit tests using an in-memory database or test database.
+
+## 6. Integrate Database with Docker Development Environment [pending]
+### Dependencies: 2.2, 2.3
+### Description: Configure the database to work seamlessly with Docker for development, testing, and CI/CD environments.
+### Details:
+1. Create a docker-compose.yml file that includes a PostgreSQL service with appropriate volume mapping.
+2. Configure environment variables for database connection in the Docker environment.
+3. Set up initialization scripts to create the database and roles on container startup.
+4. Implement a wait-for-db script to ensure the application waits for the database to be ready.
+5. Create separate database configurations for development, testing, and production environments.
+6. Set up a seeding mechanism to populate the database with test data for development.
+7. Configure database backup and restore procedures for Docker environments.
+8. Test the complete setup by bringing up the Docker environment, running migrations, and verifying the application can connect and perform operations.
+
