@@ -287,3 +287,72 @@ export class HealthModule {}
 
 Testing approach: Create a simple entity and repository, then test database connection by performing basic CRUD operations. Verify health check endpoint returns successful status.
 
+<info added on 2025-05-02T16:18:35.222Z>
+Here's the additional information for implementing the health endpoint:
+
+6. Implement the health controller with database connection check:
+```typescript
+// src/modules/health/health.controller.ts
+import { Controller, Get } from '@nestjs/common';
+import { HealthCheck, HealthCheckService, TypeOrmHealthIndicator } from '@nestjs/terminus';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+
+@Controller('health')
+export class HealthController {
+  constructor(
+    private health: HealthCheckService,
+    private typeOrmHealthIndicator: TypeOrmHealthIndicator,
+    @InjectDataSource() private dataSource: DataSource,
+  ) {}
+
+  @Get()
+  @HealthCheck()
+  async check() {
+    try {
+      return this.health.check([
+        async () => this.typeOrmHealthIndicator.pingCheck('database', { 
+          timeout: 1000,
+          connection: this.dataSource,
+        }),
+      ]);
+    } catch (error) {
+      return {
+        status: 'error',
+        error: error.message || 'Database connection failed',
+      };
+    }
+  }
+}
+```
+
+7. Install required terminus package:
+```bash
+npm install @nestjs/terminus
+```
+
+8. Register the HealthModule in AppModule:
+```typescript
+// In app.module.ts imports array
+HealthModule,
+```
+
+9. Add health check endpoint test:
+```typescript
+// test/health.e2e-spec.ts
+describe('Health Endpoint', () => {
+  it('GET /health should return database status', () => {
+    return request(app.getHttpServer())
+      .get('/health')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.status).toBeDefined();
+        expect(res.body.info).toBeDefined();
+        expect(res.body.info.database).toBeDefined();
+        expect(res.body.info.database.status).toEqual('up');
+      });
+  });
+});
+```
+</info added on 2025-05-02T16:18:35.222Z>
+
