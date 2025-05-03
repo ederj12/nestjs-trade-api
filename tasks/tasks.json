@@ -171,23 +171,11 @@
           "parentTaskId": 3
         },
         {
-          "id": 2,
-          "title": "Implement Error Handling Utilities",
-          "description": "Create robust error handling utilities for API failures",
-          "dependencies": [
-            1
-          ],
-          "details": "1. Create custom error classes for different API error types (timeout, rate limit, authentication, server errors)\n2. Implement error parsing logic to extract error details from API responses\n3. Create utility functions to handle retries for specific error types (e.g., rate limits)\n4. Add logging for different error scenarios\n5. Implement a circuit breaker pattern to prevent cascading failures\n6. Test error handling with mocked API responses for different error scenarios\n7. Ensure error handling is compatible with the response structure defined in vendor-stock-response.model.ts",
-          "status": "pending",
-          "parentTaskId": 3
-        },
-        {
           "id": 3,
           "title": "Implement Stock Listing Fetch Method",
           "description": "Create the core method to fetch stock listings from the vendor API",
           "dependencies": [
-            1,
-            2
+            1
           ],
           "details": "1. Create a method that accepts parameters for filtering stock listings (e.g., market, sector)\n2. Implement the API call to https://api.challenge.fusefinance.com/stocks using the configured HTTP client\n3. Parse and transform the API response using the types defined in vendor-stock-response.model.ts\n4. Extract the stock items with fields: lastUpdated, change, price, name, sector, symbol from the data array\n5. Apply proper error handling using the utilities from subtask 2\n6. Add appropriate logging for successful requests and responses\n7. Test the method with real API calls and verify the response matches the expected model",
           "status": "done",
