@@ -13,27 +13,8 @@ import axios from 'axios';
 import type { AxiosInstance, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { vendorApiConfig } from './vendor-api.config';
 import { Logger } from '@nestjs/common';
-import type { VendorStockApiResponse } from './vendor-stock-response.model';
-
-export interface BuyStockRequest {
-  price: number;
-  quantity: number;
-}
-
-export interface BuyStockOrder {
-  symbol: string;
-  quantity: number;
-  price: number;
-  total: number;
-}
-
-export interface BuyStockResponse {
-  status: number;
-  message: string;
-  data: {
-    order: BuyStockOrder;
-  };
-}
+import type { VendorStockApiResponse } from './vendor-stock.type';
+import type { BuyStockRequest, BuyStockResponse } from './vendor-buy-stock.type';
 
 export class VendorApiService {
   private client: AxiosInstance;
