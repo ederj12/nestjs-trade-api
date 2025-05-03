@@ -1,10 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Unique, Check } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Unique } from 'typeorm';
 import { Portfolio } from './portfolio.entity';
 import { Stock } from '../../stocks/entities/stock.entity';
 
 @Entity('portfolio_holdings')
-@Check('CHK_holding_quantity_positive', 'quantity > 0')
-@Check('CHK_holding_avg_price_positive', 'averagePurchasePrice > 0')
 @Unique(['portfolio', 'stock'])
 export class PortfolioHolding {
   @PrimaryGeneratedColumn()

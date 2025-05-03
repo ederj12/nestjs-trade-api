@@ -4,8 +4,9 @@ import { Portfolio } from '../modules/portfolios/entities/portfolio.entity';
 import { PortfolioHolding } from '../modules/portfolios/entities/portfolio-holding.entity';
 import { Stock } from '../modules/stocks/entities/stock.entity';
 import { Transaction } from '../modules/transactions/entities/transaction.entity';
+import dotenv from 'dotenv';
 
-envLoad();
+dotenv.config();
 
 export const typeOrmConfig: DataSourceOptions = {
   type: 'postgres',
@@ -21,9 +22,3 @@ export const typeOrmConfig: DataSourceOptions = {
 };
 
 export default new DataSource(typeOrmConfig);
-
-function envLoad() {
-  // Load .env if not already loaded (for CLI usage)
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  require('dotenv').config({ path: process.env.ENV_PATH || '.env' });
-}

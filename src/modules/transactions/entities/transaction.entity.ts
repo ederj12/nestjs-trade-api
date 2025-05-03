@@ -14,8 +14,6 @@ export enum TransactionStatus {
   FAILED = 'FAILED',
 }
 @Entity('transactions')
-@Check('CHK_transaction_quantity_positive', 'quantity > 0')
-@Check('CHK_transaction_price_positive', 'price > 0')
 @Index('IDX_transaction_user_stock', ['userId', 'stockId'])
 @Index('IDX_transaction_timestamp', ['timestamp'])
 export class Transaction {
