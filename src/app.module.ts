@@ -1,15 +1,17 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import databaseConfig from './config/database.config';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import databaseConfig from './config/database.config';
 import { HealthModule } from './modules/health/health.module';
-import { StocksModule } from './modules/stocks/stocks.module';
 import { PortfoliosModule } from './modules/portfolios/portfolios.module';
-import { TransactionsModule } from './modules/transactions/transactions.module';
 import vendorApiConfig from './modules/shared/vendor/vendor-api.config';
 import { StatsModule } from './modules/stats/stats.module';
+import { StocksModule } from './modules/stocks/stocks.module';
+import { TransactionsModule } from './modules/transactions/transactions.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({

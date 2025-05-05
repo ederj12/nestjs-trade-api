@@ -1,9 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-import { StocksController } from './stocks.controller';
-import { StockCacheService } from './services';
+
 import { CachedStockData } from './models/cached-stock-data.type';
+import { StockCacheService } from './services';
+import { StocksController } from './stocks.controller';
 
 describe('StocksController (unit, cache only)', () => {
   let app: INestApplication;

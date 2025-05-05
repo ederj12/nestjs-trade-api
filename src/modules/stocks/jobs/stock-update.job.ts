@@ -1,8 +1,10 @@
+import { VendorApiService } from '@modules/shared/vendor/vendor-api.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { StockCacheService } from '../services';
-import { VendorApiService } from '@modules/shared/vendor/vendor-api.service';
+
 import { CachedStockData } from '../models/cached-stock-data.type';
+import { StockCacheService } from '../services';
+
 import type {
   VendorStockApiResponse,
   VendorStockItem,

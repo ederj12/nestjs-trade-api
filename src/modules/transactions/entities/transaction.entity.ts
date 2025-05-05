@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index, Check } from 'typeorm';
-import { Stock } from '../../stocks/entities/stock.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index } from 'typeorm';
+
 import { Portfolio } from '../../portfolios/entities/portfolio.entity';
+import { Stock } from '../../stocks/entities/stock.entity';
 import { User } from '../../users/entities/user.entity';
 
 export enum TransactionType {

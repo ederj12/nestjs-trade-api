@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Index } from 'typeorm';
-import { Transaction } from '../../transactions/entities/transaction.entity';
+
 import { PortfolioHolding } from '../../portfolios/entities/portfolio-holding.entity';
+import { Transaction } from '../../transactions/entities/transaction.entity';
 
 @Entity('stocks')
 export class Stock {

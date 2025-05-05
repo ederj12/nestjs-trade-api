@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { CachedStockData } from '../models/cached-stock-data.type';
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes

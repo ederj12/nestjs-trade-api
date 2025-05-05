@@ -1,14 +1,18 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Portfolio } from './entities/portfolio.entity';
+
 import { PortfolioHolding } from './entities/portfolio-holding.entity';
-import { PortfolioRepository } from './repositories/portfolio.repository';
+import { Portfolio } from './entities/portfolio.entity';
+import { PortfolioService } from './portfolio.service';
+import { PortfoliosController } from './portfolios.controller';
 import { PortfolioHoldingRepository } from './repositories/portfolio-holding.repository';
-import { UsersModule } from '@/modules/users/users.module';
+import { PortfolioRepository } from './repositories/portfolio.repository';
+import { User } from '@/modules/users/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Portfolio, PortfolioHolding]), UsersModule],
-  providers: [PortfolioRepository, PortfolioHoldingRepository],
-  exports: [PortfolioRepository, PortfolioHoldingRepository],
+  imports: [TypeOrmModule.forFeature([Portfolio, PortfolioHolding, User])],
+  providers: [PortfolioService, PortfolioRepository, PortfolioHoldingRepository],
+  exports: [PortfolioService],
+  controllers: [PortfoliosController],
 })
 export class PortfoliosModule {}

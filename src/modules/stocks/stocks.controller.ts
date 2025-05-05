@@ -3,16 +3,16 @@ import {
   Get,
   Query,
   Param,
-  NotFoundException,
   UsePipes,
   ValidationPipe,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { StockCacheService } from './services';
-import { GetStocksQueryDto } from './dto/get-stocks-query.dto';
+
 import { GetStockParamDto } from './dto/get-stock-param.dto';
+import { GetStocksQueryDto } from './dto/get-stocks-query.dto';
 import { CachedStockData } from './models/cached-stock-data.type';
+import { StockCacheService } from './services';
 
 /**
  * Controller for stock listing endpoints.

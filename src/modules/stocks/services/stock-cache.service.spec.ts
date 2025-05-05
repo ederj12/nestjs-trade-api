@@ -1,5 +1,6 @@
-import { StockCacheService } from './stock-cache.service';
 import { CachedStockData } from '../models/cached-stock-data.type';
+
+import { StockCacheService } from './stock-cache.service';
 
 describe('StockCacheService', () => {
   let service: StockCacheService;

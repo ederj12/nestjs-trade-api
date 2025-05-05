@@ -1,6 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Unique } from 'typeorm';
-import { Portfolio } from './portfolio.entity';
+
 import { Stock } from '../../stocks/entities/stock.entity';
+
+import { Portfolio } from './portfolio.entity';
 
 @Entity('portfolio_holdings')
 @Unique(['portfolio', 'stock'])

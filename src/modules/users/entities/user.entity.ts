@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   Index,
 } from 'typeorm';
+
 import { Portfolio } from '../../portfolios/entities/portfolio.entity';
 import { Transaction } from '../../transactions/entities/transaction.entity';
 

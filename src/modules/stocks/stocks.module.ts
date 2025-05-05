@@ -1,11 +1,12 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Stock } from './entities/stock.entity';
-import { StockRepository } from './repositories/stock.repository';
 import { VendorModule } from '@modules/shared/vendor/vendor.module';
-import { StockCacheService } from './services';
-import { StockUpdateJob } from './jobs';
+import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { Stock } from './entities/stock.entity';
+import { StockUpdateJob } from './jobs';
+import { StockRepository } from './repositories/stock.repository';
+import { StockCacheService } from './services';
 import { StocksController } from './stocks.controller';
 
 @Module({
