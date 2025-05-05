@@ -11,20 +11,30 @@
 
 import axios from 'axios';
 import type { AxiosInstance, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { vendorApiConfig } from './vendor-api.config';
-import { Logger } from '@nestjs/common';
+import { Logger, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { VendorStockApiResponse } from './vendor-stock.type';
 import type { BuyStockRequest, BuyStockResponse } from './vendor-buy-stock.type';
+import type { VendorApiConfig } from './vendor-api.type';
 
+@Injectable()
 export class VendorApiService {
   private client: AxiosInstance;
   private retryCount: Map<string, number> = new Map();
   private readonly logger = new Logger(VendorApiService.name);
+  private readonly config: VendorApiConfig;
 
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
+    const config = this.configService.get<VendorApiConfig>('vendorApi');
+
+    if (!config) {
+      throw new Error('Vendor API config is missing. Please check your configuration.');
+    }
+
+    this.config = config;
     this.client = axios.create({
-      baseURL: vendorApiConfig.baseURL,
-      timeout: vendorApiConfig.timeout,
+      baseURL: this.config.baseURL,
+      timeout: this.config.timeout,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -37,7 +47,7 @@ export class VendorApiService {
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         if (config.headers) {
-          (config.headers as Record<string, string>)['x-api-key'] = vendorApiConfig.apiKey;
+          (config.headers as Record<string, string>)['x-api-key'] = this.config.apiKey;
         }
         this.logger.debug(
           `API Request: ${config.method?.toUpperCase()} ${config.url} | params: ${JSON.stringify(config.params)} | data: ${JSON.stringify(config.data)}`,
@@ -63,17 +73,17 @@ export class VendorApiService {
         if (config && config.url) {
           const currentRetryCount = this.retryCount.get(config.url) || 0;
           if (
-            currentRetryCount < vendorApiConfig.maxRetries &&
+            currentRetryCount < this.config.maxRetries &&
             (error.code === 'ECONNABORTED' ||
               error.code === 'ETIMEDOUT' ||
               (error.response && error.response.status && error.response.status >= 500))
           ) {
             this.retryCount.set(config.url, currentRetryCount + 1);
             this.logger.warn(
-              `Retrying request to ${config.url} (${currentRetryCount + 1}/${vendorApiConfig.maxRetries}) due to error: ${error.message}`,
+              `Retrying request to ${config.url} (${currentRetryCount + 1}/${this.config.maxRetries}) due to error: ${error.message}`,
             );
             await new Promise(resolve =>
-              setTimeout(resolve, vendorApiConfig.retryDelay * (currentRetryCount + 1)),
+              setTimeout(resolve, this.config.retryDelay * (currentRetryCount + 1)),
             );
             return this.client(config);
           }

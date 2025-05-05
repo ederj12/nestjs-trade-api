@@ -8,12 +8,13 @@ import { HealthModule } from './modules/health/health.module';
 import { StocksModule } from './modules/stocks/stocks.module';
 import { PortfoliosModule } from './modules/portfolios/portfolios.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
-
+import vendorApiConfig from './modules/shared/vendor/vendor-api.config';
+import { StatsModule } from './modules/stats/stats.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig],
+      load: [databaseConfig, vendorApiConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -33,6 +34,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
     StocksModule,
     PortfoliosModule,
     TransactionsModule,
+    StatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

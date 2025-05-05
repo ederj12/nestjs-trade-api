@@ -1,6 +1,6 @@
 # Task ID: 5
 # Title: Stock Listing API Endpoints
-# Status: pending
+# Status: done
 # Dependencies: 3, 4
 # Priority: high
 # Description: Create endpoints for retrieving stock listings with pagination
@@ -9,3 +9,450 @@ Implement REST endpoints for: GET /stocks (list all stocks with pagination), GET
 
 # Test Strategy:
 Write integration tests for each endpoint. Test pagination functionality. Verify response formats and status codes.
+
+# Subtasks:
+## 1. Design DTOs and Validation for Stock Endpoints [done]
+### Dependencies: None
+### Description: Define DTOs for query parameters (pagination: page, limit, etc.) and path parameters (stock ID). Add class-validator decorators for input validation. Use class-transformer for type conversion.
+### Details:
+
+
+<info added on 2025-05-05T04:28:12.545Z>
+```typescript
+// StockQueryParamsDto
+export class StockQueryParamsDto {
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  page?: number = 1;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  @Type(() => Number)
+  limit?: number = 20;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['name', 'symbol', 'price', 'createdAt'])
+  sortBy?: string = 'createdAt';
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['asc', 'desc'])
+  order?: 'asc' | 'desc' = 'desc';
+
+  @IsOptional()
+  @IsString()
+  search?: string;
+}
+
+// StockParamsDto
+export class StockParamsDto {
+  @IsUUID(4)
+  @Type(() => String)
+  id: string;
+}
+
+// StockCreateDto
+export class StockCreateDto {
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(100)
+  name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(10)
+  symbol: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  price: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  description?: string;
+}
+
+// StockUpdateDto
+export class StockUpdateDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(10)
+  symbol?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  price?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  description?: string;
+}
+
+// Implementation notes:
+// 1. Import required decorators:
+//    import { IsInt, IsString, IsOptional, Min, Max, IsIn, IsUUID, IsNotEmpty, IsNumber, MaxLength } from 'class-validator';
+//    import { Type } from 'class-transformer';
+// 
+// 2. Apply validation pipe globally in main.ts:
+//    app.useGlobalPipes(new ValidationPipe({
+//      transform: true,
+//      whitelist: true,
+//      forbidNonWhitelisted: true,
+//    }));
+//
+// 3. Use DTOs in controller methods:
+//    @Get()
+//    findAll(@Query() queryParams: StockQueryParamsDto) { ... }
+//
+//    @Get(':id')
+//    findOne(@Param() params: StockParamsDto) { ... }
+```
+</info added on 2025-05-05T04:28:12.545Z>
+
+## 2. Implement GET /stocks Endpoint (with Pagination) [done]
+### Dependencies: None
+### Description: Create a controller method for GET /stocks. Use DTO for pagination query. Integrate with StockCacheService for fast retrieval. Implement pagination logic (slice or paginate cached/DB results). Return paginated response with metadata (total, page, limit, etc.).
+### Details:
+
+
+<info added on 2025-05-05T04:28:40.290Z>
+```typescript
+// DTO for pagination query
+export class StockPaginationDto {
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  page?: number = 1;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  @Type(() => Number)
+  limit?: number = 20;
+
+  @IsOptional()
+  @IsString()
+  sortBy?: string = 'symbol';
+
+  @IsOptional()
+  @IsEnum(['asc', 'desc'])
+  sortDirection?: 'asc' | 'desc' = 'asc';
+}
+
+// Controller implementation
+@Controller('stocks')
+export class StocksController {
+  constructor(
+    private readonly stockService: StockService,
+    private readonly stockCacheService: StockCacheService,
+  ) {}
+
+  @Get()
+  async getStocks(@Query() paginationDto: StockPaginationDto): Promise<PaginatedResponse<Stock>> {
+    // Get total count and stocks from cache if available
+    const cachedStocks = await this.stockCacheService.getAllStocks();
+    
+    // Apply sorting
+    const sortedStocks = this.applySorting(cachedStocks, paginationDto.sortBy, paginationDto.sortDirection);
+    
+    // Apply pagination
+    const { page, limit } = paginationDto;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedStocks = sortedStocks.slice(startIndex, endIndex);
+    
+    // Return paginated response with metadata
+    return {
+      data: paginatedStocks,
+      meta: {
+        total: cachedStocks.length,
+        page,
+        limit,
+        totalPages: Math.ceil(cachedStocks.length / limit),
+      }
+    };
+  }
+
+  private applySorting(stocks: Stock[], sortBy: string, sortDirection: 'asc' | 'desc'): Stock[] {
+    return [...stocks].sort((a, b) => {
+      const aValue = a[sortBy];
+      const bValue = b[sortBy];
+      
+      if (sortDirection === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+  }
+}
+
+// Response interface
+interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+```
+
+Implementation notes:
+1. Use class-validator and class-transformer for DTO validation
+2. Implement fallback to database if cache is unavailable
+3. Consider adding ETag support for HTTP caching
+4. Add error handling for invalid pagination parameters
+5. Consider implementing filtering options (by sector, price range, etc.)
+6. Add Swagger documentation for the endpoint
+</info added on 2025-05-05T04:28:40.290Z>
+
+## 3. Implement GET /stocks/:id Endpoint [done]
+### Dependencies: None
+### Description: Create a controller method for GET /stocks/:id. Use DTO for path param validation. Retrieve stock details from cache (or DB as fallback). Return 404 if not found.
+### Details:
+
+
+<info added on 2025-05-05T04:28:58.805Z>
+```typescript
+// Implementation details for GET /stocks/:id endpoint
+
+// 1. DTO for validation
+export class StockIdParamDto {
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value.toUpperCase())
+  id: string;
+}
+
+// 2. Controller method implementation
+@Get(':id')
+@ApiOperation({ summary: 'Get stock details by ticker symbol' })
+@ApiParam({ name: 'id', description: 'Stock ticker symbol (e.g., AAPL)' })
+@ApiResponse({ status: 200, description: 'Stock details retrieved successfully', type: StockResponseDto })
+@ApiResponse({ status: 404, description: 'Stock not found' })
+async getStockById(@Param() params: StockIdParamDto): Promise<StockResponseDto> {
+  // Try cache first
+  const cachedStock = await this.cacheManager.get<StockResponseDto>(`stock:${params.id}`);
+  
+  if (cachedStock) {
+    this.logger.debug(`Cache hit for stock ${params.id}`);
+    return cachedStock;
+  }
+  
+  // Cache miss, query database
+  this.logger.debug(`Cache miss for stock ${params.id}, querying database`);
+  const stock = await this.stocksService.findById(params.id);
+  
+  if (!stock) {
+    throw new NotFoundException(`Stock with ID ${params.id} not found`);
+  }
+  
+  // Store in cache for future requests (TTL: 5 minutes)
+  await this.cacheManager.set(`stock:${params.id}`, stock, 300);
+  
+  return stock;
+}
+
+// 3. Service method
+async findById(id: string): Promise<StockEntity | null> {
+  return this.stockRepository.findOne({ where: { ticker: id } });
+}
+```
+</info added on 2025-05-05T04:28:58.805Z>
+
+## 4. Error Handling and Status Codes [done]
+### Dependencies: None
+### Description: Ensure endpoints return appropriate HTTP status codes: 200 for success, 400 for invalid input, 404 for not found, 500 for server errors. Standardize error response format.
+### Details:
+
+
+<info added on 2025-05-05T04:29:19.411Z>
+## Error Handling Implementation Details
+
+### HTTP Status Code Implementation
+- Use 201 for successful resource creation operations
+- Use 204 for successful operations that don't return content
+- Use 401 for authentication failures
+- Use 403 for authorization failures (authenticated but not permitted)
+- Use 409 for conflicts (e.g., duplicate resources)
+- Use 422 for validation errors (syntactically correct but semantically invalid)
+
+### Standardized Error Response Format
+```json
+{
+  "error": {
+    "status": 400,
+    "code": "INVALID_INPUT",
+    "message": "The request contains invalid parameters",
+    "details": [
+      {
+        "field": "email",
+        "message": "Must be a valid email address"
+      }
+    ]
+  }
+}
+```
+
+### Implementation Guidelines
+- Create a centralized error handling middleware to catch exceptions
+- Implement custom error classes that map to specific HTTP status codes
+- Log all 5xx errors with stack traces for debugging
+- Don't expose sensitive information in error messages
+- Include correlation IDs in responses for tracking issues across services
+- For validation errors, clearly indicate which fields failed and why
+
+### Testing Requirements
+- Write tests for each error condition
+- Verify correct status codes and response formats
+- Test error handling for edge cases (null inputs, malformed data)
+</info added on 2025-05-05T04:29:19.411Z>
+
+## 5. Integration with Caching Mechanism [done]
+### Dependencies: None
+### Description: Ensure both endpoints use StockCacheService for reads. Fallback to DB if cache miss (if DB layer is implemented). Optionally, add cache headers (ETag, Cache-Control) to responses.
+### Details:
+
+
+<info added on 2025-05-05T04:29:38.583Z>
+# Cache Integration Implementation Details
+
+## StockCacheService Integration
+- Inject `StockCacheService` into both controller classes using constructor injection
+- Implement a "cache-first" strategy in both endpoints:
+  ```typescript
+  // Example pattern for GET /api/stocks/:symbol
+  async getStockBySymbol(symbol: string): Promise<StockData> {
+    // Try cache first
+    const cachedData = await this.stockCacheService.get(symbol);
+    if (cachedData) {
+      return cachedData;
+    }
+    
+    // Cache miss - fetch from database
+    const dbData = await this.stockRepository.findBySymbol(symbol);
+    
+    // Update cache with fresh data
+    if (dbData) {
+      await this.stockCacheService.set(symbol, dbData);
+    }
+    
+    return dbData;
+  }
+  ```
+
+## HTTP Cache Headers Implementation
+- Generate ETag based on data version or content hash:
+  ```typescript
+  import { createHash } from 'crypto';
+  
+  function generateETag(data: any): string {
+    const hash = createHash('md5')
+      .update(JSON.stringify(data))
+      .digest('hex');
+    return `"${hash}"`;
+  }
+  ```
+- Add cache headers to response:
+  ```typescript
+  @Get(':symbol')
+  async getStock(@Param('symbol') symbol: string, @Res() response: Response) {
+    const data = await this.stockService.getStockBySymbol(symbol);
+    const etag = generateETag(data);
+    
+    response
+      .set({
+        'ETag': etag,
+        'Cache-Control': 'public, max-age=60',
+      })
+      .json(data);
+  }
+  ```
+
+## Cache Invalidation Strategy
+- Implement cache invalidation when stock data is updated
+- Consider using a TTL (Time-To-Live) strategy for cache entries (e.g., 5 minutes)
+- For the search endpoint, use composite keys like `search:${query}:${limit}` for caching
+</info added on 2025-05-05T04:29:38.583Z>
+
+## 6. Integration Tests [done]
+### Dependencies: None
+### Description: Write integration tests for: GET /stocks (pagination, edge cases), GET /stocks/:id (valid/invalid IDs, not found), error scenarios and response formats.
+### Details:
+
+
+<info added on 2025-05-05T04:29:57.246Z>
+# Integration Test Implementation Details
+
+## Test Setup
+- Use Jest with Supertest for HTTP assertions
+- Create a test database setup/teardown in `beforeAll`/`afterAll` hooks
+- Seed test data with known stocks for predictable test results
+
+## GET /stocks Tests
+- Test default pagination (first page, default limit)
+- Test custom page and limit parameters
+- Test exceeding available pages returns empty array
+- Test invalid pagination parameters return 400 error
+- Test sorting functionality (if implemented)
+- Test filtering functionality (if implemented)
+
+## GET /stocks/:id Tests
+- Test retrieving existing stock returns 200 with correct data
+- Test non-existent ID returns 404
+- Test malformed ID format returns 400
+- Test ID with correct format but invalid characters
+
+## Error Scenario Tests
+- Test server errors (500) using mocked failures
+- Verify error response format matches API specification:
+  ```json
+  {
+    "error": {
+      "code": "ERROR_CODE",
+      "message": "Human readable message"
+    }
+  }
+  ```
+- Test rate limiting behavior (if implemented)
+
+## Response Format Tests
+- Verify all successful responses match documented schema
+- Verify timestamps are in ISO format
+- Verify numeric fields have correct precision
+
+## Example Test Case
+```javascript
+describe('GET /stocks', () => {
+  it('returns paginated results with default parameters', async () => {
+    const response = await request(app).get('/stocks');
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('data');
+    expect(response.body).toHaveProperty('pagination');
+    expect(Array.isArray(response.body.data)).toBe(true);
+    // Additional assertions...
+  });
+});
+```
+</info added on 2025-05-05T04:29:57.246Z>
+
