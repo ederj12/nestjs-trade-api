@@ -1,11 +1,66 @@
 # Task ID: 5
 # Title: Stock Listing API Endpoints
-# Status: pending
+# Status: done
 # Dependencies: 3, 4
 # Priority: high
 # Description: Create endpoints for retrieving stock listings with pagination
 # Details:
 Implement REST endpoints for: GET /stocks (list all stocks with pagination), GET /stocks/:id (get single stock details). Handle query parameters for pagination. Implement DTO validation. Return appropriate HTTP status codes and error messages. Use the caching mechanism to optimize response times.
 
+## Subtasks:
+### 5.1 Design DTOs and Validation for Stock Endpoints [done]
+- Define DTOs for:
+  - Query parameters (pagination: page, limit, etc.)
+  - Path parameters (stock ID)
+- Add class-validator decorators for input validation.
+- Use class-transformer for type conversion.
+
+### 5.2 Implement GET /stocks Endpoint (with Pagination) [done]
+- Create a controller method for `GET /stocks`.
+- Use DTO for pagination query.
+- Integrate with `StockCacheService` for fast retrieval.
+- Implement pagination logic (slice or paginate cached/DB results).
+- Return paginated response with metadata (total, page, limit, etc.).
+
+### 5.3 Implement GET /stocks/:id Endpoint [done]
+- Create a controller method for `GET /stocks/:id`.
+- Use DTO for path param validation.
+- Retrieve stock details from cache (or DB as fallback).
+- Return 404 if not found.
+
+### 5.4 Error Handling and Status Codes [done]
+- Ensure endpoints return appropriate HTTP status codes:
+  - 200 for success
+  - 400 for invalid input
+  - 404 for not found
+  - 500 for server errors
+- Standardize error response format.
+
+### 5.5 Integration with Caching Mechanism [done]
+- Ensure both endpoints use `StockCacheService` for reads.
+- Fallback to DB if cache miss (if DB layer is implemented).
+- Optionally, add cache headers (ETag, Cache-Control) to responses.
+
+### 5.6 Integration Tests [done]
+- Write integration tests for:
+  - GET /stocks (pagination, edge cases)
+  - GET /stocks/:id (valid/invalid IDs, not found)
+  - Error scenarios and response formats
+
 # Test Strategy:
 Write integration tests for each endpoint. Test pagination functionality. Verify response formats and status codes.
+
+# Implementation Notes:
+- **DTOs:** Use `class-validator` and `class-transformer` for robust validation.
+- **Pagination:** Use query params `page` (default 1), `limit` (default 20, max 100).
+- **Cache:** Always try cache first for reads; fallback to DB if needed.
+- **Response Format:** Consistent structure, e.g.:
+  {
+    "data": [...],
+    "meta": { "total": 100, "page": 1, "limit": 20 }
+  }
+- **Error Format:**
+  {
+    "statusCode": 404,
+    "message": "Stock not found"
+  }

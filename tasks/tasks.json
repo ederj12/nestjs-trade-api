@@ -293,7 +293,7 @@
       "id": 5,
       "title": "Stock Listing API Endpoints",
       "description": "Create endpoints for retrieving stock listings with pagination",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         3,
         4
