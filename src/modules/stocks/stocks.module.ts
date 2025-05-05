@@ -3,11 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Stock } from './entities/stock.entity';
 import { StockRepository } from './repositories/stock.repository';
 import { VendorModule } from '@modules/shared/vendor/vendor.module';
+import { StockCacheService } from './services';
+import { StockUpdateJob } from './jobs';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Stock]), VendorModule],
+  imports: [ScheduleModule.forRoot(), TypeOrmModule.forFeature([Stock]), VendorModule],
   controllers: [],
-  providers: [StockRepository],
-  exports: [StockRepository],
+  providers: [StockCacheService, StockRepository, StockUpdateJob],
+  exports: [StockCacheService, StockRepository],
 })
 export class StocksModule {}

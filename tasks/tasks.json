@@ -226,7 +226,68 @@
       ],
       "priority": "medium",
       "details": "Create a caching service that stores stock data in memory and/or database. Implement a mechanism to refresh stock prices every 5 minutes. Use NestJS cache module or implement a custom solution. Ensure cache invalidation works correctly. Add background job to periodically update stock prices from the vendor API.",
-      "testStrategy": "Test cache hit/miss scenarios. Verify cache invalidation after 5 minutes. Measure performance improvements with caching enabled vs. disabled."
+      "testStrategy": "Test cache hit/miss scenarios. Verify cache invalidation after 5 minutes. Measure performance improvements with caching enabled vs. disabled.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Design and implement the StockCacheService class",
+          "description": "Create a service class that will handle caching stock data with appropriate interfaces and data structures",
+          "dependencies": [],
+          "details": "1. Create a `StockCacheService` class in the appropriate module\n2. Define interfaces for stock data (e.g., `CachedStockData` interface with price, timestamp, etc.)\n3. Implement methods for getting, setting, and checking stock data in the cache\n4. Set up in-memory cache storage using Map or NestJS CacheModule\n5. Add configuration for cache TTL (time-to-live) of 5 minutes\n6. Implement basic logging for cache hits/misses\n7. Test the service with unit tests to verify basic caching functionality works",
+          "status": "pending",
+          "parentTaskId": 4
+        },
+        {
+          "id": 2,
+          "title": "Implement database persistence layer for cached stock data",
+          "description": "Create a database schema and repository to persist cached stock data for resilience",
+          "dependencies": [
+            1
+          ],
+          "details": "1. Design database schema for cached stock data (table with stock symbol, price, timestamp, etc.)\n2. Create entity classes and repository for stock cache data\n3. Extend the StockCacheService to read from database when in-memory cache misses\n4. Implement methods to persist cache updates to database\n5. Add transaction support for database operations\n6. Implement cache warming on application startup from database\n7. Test database persistence with integration tests",
+          "status": "pending",
+          "parentTaskId": 4
+        },
+        {
+          "id": 3,
+          "title": "Create background job for stock price updates",
+          "description": "Implement a scheduled job that runs every 5 minutes to fetch fresh stock data from vendor API",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "1. Create a `StockUpdateJob` class using NestJS scheduling (or bull queue)\n2. Configure the job to run every 5 minutes\n3. Implement the job to fetch latest stock prices from vendor API\n4. Add error handling and retry logic for API failures\n5. Implement logging for job execution and errors\n6. Add metrics collection for job performance\n7. Test the job execution with mock vendor API",
+          "status": "pending",
+          "parentTaskId": 4
+        },
+        {
+          "id": 4,
+          "title": "Implement cache invalidation and refresh mechanism",
+          "description": "Create logic to invalidate and refresh cached stock data based on age and updates",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "1. Implement cache invalidation strategy (time-based and manual trigger)\n2. Add method to check if cached data is stale (older than 5 minutes)\n3. Create refresh mechanism that updates only stale data\n4. Implement partial cache updates (update only changed stocks)\n5. Add concurrency control for cache updates\n6. Implement cache statistics (hit rate, miss rate, etc.)\n7. Test cache invalidation with various scenarios",
+          "status": "pending",
+          "parentTaskId": 4
+        },
+        {
+          "id": 5,
+          "title": "Integrate cache service with stock API endpoints",
+          "description": "Connect the caching mechanism to the existing stock API endpoints to serve cached data",
+          "dependencies": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "details": "1. Modify existing stock API controllers to use the StockCacheService\n2. Implement cache-first strategy for stock data retrieval\n3. Add cache headers to API responses (ETag, Cache-Control)\n4. Implement conditional requests support (If-None-Match)\n5. Add endpoint to manually trigger cache refresh for testing\n6. Create admin endpoint to view cache statistics\n7. Perform end-to-end testing of the complete caching system\n8. Load test the system to verify performance improvements",
+          "status": "pending",
+          "parentTaskId": 4
+        }
+      ]
     },
     {
       "id": 5,

@@ -158,8 +158,62 @@
         1
       ],
       "priority": "high",
-      "details": "Implement a service that handles all interactions with the vendor API. Create methods for fetching stock listings with pagination support using the nextToken system. Implement proper error handling for API failures including timeouts, rate limits, and server errors. Use Axios or similar HTTP client with interceptors for adding the x-api-key header.",
-      "testStrategy": "Create mock responses to test API integration. Verify error handling with simulated failures. Test pagination functionality."
+      "details": "Implement a service that handles all interactions with the vendor API at https://api.challenge.fusefinance.com/stocks. Create methods for fetching stock listings with pagination support using the nextToken system. The API returns a JSON object with a status, a data object containing an array of stock items (with fields: lastUpdated, change, price, name, sector, symbol), and a nextToken string for pagination. Use the existing types/interfaces defined in src/modules/stocks/models/vendor-stock-response.model.ts. Implement proper error handling for API failures including timeouts, rate limits, and server errors. Use Axios or similar HTTP client with interceptors for adding the x-api-key header.",
+      "testStrategy": "Create mock responses to test API integration using the defined vendor stock response model. Verify error handling with simulated failures. Test pagination functionality with the nextToken system.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create Vendor API Client Configuration",
+          "description": "Set up the HTTP client with proper configuration for the vendor API",
+          "dependencies": [],
+          "details": "1. Install Axios or similar HTTP client library\n2. Create a configuration module for the vendor API with baseURL set to https://api.challenge.fusefinance.com/stocks, timeout settings, and retry logic\n3. Implement interceptors to add the x-api-key header to all requests\n4. Set up request/response logging for debugging purposes\n5. Create environment variables for API key, base URL, and other configuration\n6. Test the configuration by making a simple request to the API health endpoint\n\n<info added on 2025-05-03T19:40:49.252Z>\nHere's additional implementation information for the Vendor API Client Configuration:\n\n```typescript\n// src/modules/stocks/vendor/vendor-api.config.ts\nexport interface VendorApiConfig {\n  baseURL: string;\n  apiKey: string;\n  timeout: number;\n  maxRetries: number;\n  retryDelay: number;\n}\n\nexport const vendorApiConfig: VendorApiConfig = {\n  baseURL: process.env.VENDOR_API_URL || 'https://api.challenge.fusefinance.com/stocks',\n  apiKey: process.env.VENDOR_API_KEY || '',\n  timeout: parseInt(process.env.VENDOR_API_TIMEOUT || '10000', 10),\n  maxRetries: parseInt(process.env.VENDOR_API_MAX_RETRIES || '3', 10),\n  retryDelay: parseInt(process.env.VENDOR_API_RETRY_DELAY || '1000', 10),\n};\n```\n\n```typescript\n// src/modules/stocks/vendor/vendor-api.service.ts\nimport axios, { AxiosInstance, AxiosError } from 'axios';\nimport { vendorApiConfig } from './vendor-api.config';\n\nexport class VendorApiService {\n  private client: AxiosInstance;\n  private retryCount: Map<string, number> = new Map();\n\n  constructor() {\n    this.client = axios.create({\n      baseURL: vendorApiConfig.baseURL,\n      timeout: vendorApiConfig.timeout,\n      headers: {\n        'Content-Type': 'application/json',\n      },\n    });\n\n    this.setupInterceptors();\n  }\n\n  private setupInterceptors(): void {\n    // Request interceptor\n    this.client.interceptors.request.use(\n      (config) => {\n        // Add API key to all requests\n        config.headers['x-api-key'] = vendorApiConfig.apiKey;\n        \n        // Log request for debugging\n        console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`, \n          config.params || config.data || '');\n        \n        return config;\n      },\n      (error) => Promise.reject(error)\n    );\n\n    // Response interceptor with retry logic\n    this.client.interceptors.response.use(\n      (response) => {\n        // Log response for debugging\n        console.log(`API Response: ${response.status} ${response.config.url}`, \n          response.data);\n        \n        // Clear retry count on successful response\n        if (response.config.url) {\n          this.retryCount.delete(response.config.url);\n        }\n        \n        return response;\n      },\n      async (error: AxiosError) => {\n        const config = error.config;\n        \n        // Implement retry logic for network errors or 5xx responses\n        if (config && config.url) {\n          const currentRetryCount = this.retryCount.get(config.url) || 0;\n          \n          if (currentRetryCount < vendorApiConfig.maxRetries && \n              (error.code === 'ECONNABORTED' || \n               error.code === 'ETIMEDOUT' || \n               (error.response && error.response.status >= 500))) {\n            \n            this.retryCount.set(config.url, currentRetryCount + 1);\n            \n            console.log(`Retrying request to ${config.url} (${currentRetryCount + 1}/${vendorApiConfig.maxRetries})`);\n            \n            // Wait before retrying\n            await new Promise(resolve => \n              setTimeout(resolve, vendorApiConfig.retryDelay * (currentRetryCount + 1))\n            );\n            \n            return this.client(config);\n          }\n          \n          // Clear retry count if max retries reached\n          this.retryCount.delete(config.url);\n        }\n        \n        // Log error for debugging\n        console.error('API Error:', {\n          url: config?.url,\n          status: error.response?.status,\n          data: error.response?.data,\n          message: error.message\n        });\n        \n        return Promise.reject(error);\n      }\n    );\n  }\n\n  // Health check method to test configuration\n  async checkHealth(): Promise<boolean> {\n    try {\n      const response = await this.client.get('/health');\n      return response.status === 200;\n    } catch (error) {\n      console.error('Health check failed:', error);\n      return false;\n    }\n  }\n\n  // Expose the client for use in other services\n  getClient(): AxiosInstance {\n    return this.client;\n  }\n}\n```\n\nAdd this to your module setup:\n\n```typescript\n// src/modules/stocks/stocks.module.ts\nimport { Module } from '@nestjs/common';\nimport { VendorApiService } from './vendor/vendor-api.service';\n\n@Module({\n  providers: [\n    VendorApiService,\n    // other providers...\n  ],\n  exports: [\n    VendorApiService,\n    // other exports...\n  ],\n})\nexport class StocksModule {}\n```\n\nExample .env additions:\n```\nVENDOR_API_URL=https://api.challenge.fusefinance.com/stocks\nVENDOR_API_KEY=your-api-key-here\nVENDOR_API_TIMEOUT=10000\nVENDOR_API_MAX_RETRIES=3\nVENDOR_API_RETRY_DELAY=1000\n```\n</info added on 2025-05-03T19:40:49.252Z>",
+          "status": "done",
+          "parentTaskId": 3
+        },
+        {
+          "id": 3,
+          "title": "Implement Stock Listing Fetch Method",
+          "description": "Create the core method to fetch stock listings from the vendor API",
+          "dependencies": [
+            1
+          ],
+          "details": "1. Create a method that accepts parameters for filtering stock listings (e.g., market, sector)\n2. Implement the API call to https://api.challenge.fusefinance.com/stocks using the configured HTTP client\n3. Parse and transform the API response using the types defined in vendor-stock-response.model.ts\n4. Extract the stock items with fields: lastUpdated, change, price, name, sector, symbol from the data array\n5. Apply proper error handling using the utilities from subtask 2\n6. Add appropriate logging for successful requests and responses\n7. Test the method with real API calls and verify the response matches the expected model",
+          "status": "done",
+          "parentTaskId": 3
+        },
+        {
+          "id": 4,
+          "title": "Implement Pagination Support",
+          "description": "Add pagination support using the nextToken system",
+          "dependencies": [
+            3
+          ],
+          "details": "1. Extend the stock listing fetch method to accept a nextToken parameter\n2. Implement logic to include the nextToken in API requests when provided\n3. Extract the nextToken from API responses as defined in vendor-stock-response.model.ts for subsequent requests\n4. Create a helper method to automatically handle pagination and collect all results\n5. Add safeguards against infinite loops in pagination\n6. Test pagination with large result sets to ensure all data is retrieved correctly\n7. Ensure the pagination implementation aligns with the response structure in the vendor-stock-response.model.ts",
+          "status": "done",
+          "parentTaskId": 3
+        },
+        {
+          "id": 5,
+          "title": "Create Service Facade and Documentation",
+          "description": "Create a clean service interface and documentation for the vendor API integration",
+          "dependencies": [
+            3,
+            4
+          ],
+          "details": "1. Create a service class that encapsulates all vendor API interactions\n2. Implement methods with clear signatures and documentation using the types from vendor-stock-response.model.ts\n3. Add input validation for all public methods\n4. Create usage examples for common scenarios\n5. Add comprehensive JSDoc or similar documentation referencing the vendor API endpoint and response structure\n6. Write unit and integration tests for the complete service using the defined model types\n7. Create a README with setup instructions and API reference including details about the response structure",
+          "status": "done",
+          "parentTaskId": 3
+        },
+        {
+          "id": 6,
+          "title": "Implement Buy Stock Method in VendorApiService",
+          "description": "Implement a method in VendorApiService to POST to /stocks/:symbol/buy with price and quantity, and handle the response. Create TypeScript interfaces for the request and response based on the provided example.",
+          "details": "- Create interfaces for the buy request and response:\n  - Request: { price: number; quantity: number; }\n  - Response: { status: number; message: string; data: { order: { symbol: string; quantity: number; price: number; total: number; } } }\n- Implement a method in VendorApiService: buyStock(symbol: string, price: number, quantity: number): Promise<BuyStockResponse>\n- The method should POST to /stocks/:symbol/buy with the request body and return the parsed response.\n- Add error handling and logging as in other methods.\n- Write unit tests for the method.",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 3
+        }
+      ]
     },
     {
       "id": 4,
