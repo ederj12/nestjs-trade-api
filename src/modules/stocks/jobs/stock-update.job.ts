@@ -27,7 +27,8 @@ export class StockUpdateJob {
   async handleStockUpdate(): Promise<void> {
     this.logger.log('Stock update job started');
     try {
-      const response: VendorStockApiResponse = await this.vendorApiService.fetchStockListings();
+      const response: VendorStockApiResponse =
+        await this.vendorApiService.fetchAllStockListingsWithPagination();
       const stocks: CachedStockData[] = response.data.items.map((item: VendorStockItem) => ({
         symbol: item.symbol,
         price: item.price,

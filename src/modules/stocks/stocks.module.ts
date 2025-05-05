@@ -6,10 +6,11 @@ import { VendorModule } from '@modules/shared/vendor/vendor.module';
 import { StockCacheService } from './services';
 import { StockUpdateJob } from './jobs';
 import { ScheduleModule } from '@nestjs/schedule';
+import { StocksController } from './stocks.controller';
 
 @Module({
   imports: [ScheduleModule.forRoot(), TypeOrmModule.forFeature([Stock]), VendorModule],
-  controllers: [],
+  controllers: [StocksController],
   providers: [StockCacheService, StockRepository, StockUpdateJob],
   exports: [StockCacheService, StockRepository],
 })

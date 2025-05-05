@@ -9,6 +9,7 @@ import { StocksModule } from './modules/stocks/stocks.module';
 import { PortfoliosModule } from './modules/portfolios/portfolios.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import vendorApiConfig from './modules/shared/vendor/vendor-api.config';
+import { StatsModule } from './modules/stats/stats.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -33,6 +34,7 @@ import vendorApiConfig from './modules/shared/vendor/vendor-api.config';
     StocksModule,
     PortfoliosModule,
     TransactionsModule,
+    StatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
