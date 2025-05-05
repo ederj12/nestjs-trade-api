@@ -9,3 +9,68 @@ Create a service to manage user portfolios. Implement methods to retrieve, creat
 
 # Test Strategy:
 Write unit tests for portfolio calculations. Test edge cases and error scenarios. Verify portfolio valuation accuracy.
+
+# Subtasks:
+## 1. Create Portfolio Data Model and Repository Interface [pending]
+### Dependencies: None
+### Description: Define the data model for portfolios and create the repository interface for CRUD operations
+### Details:
+1. Define a Portfolio entity class with fields for userId, portfolioId, name, and a collection of portfolio entries (stocks)
+2. Define a PortfolioEntry entity with fields for stockSymbol, quantity, purchasePrice, and purchaseDate
+3. Create a PortfolioRepository interface with methods for findByUserId, findById, save, update, and delete
+4. Implement validation annotations on the entity classes
+5. Create necessary DTOs for API requests and responses
+6. Test the model by creating sample portfolio objects and validating constraints
+
+## 2. Implement Portfolio Repository and Basic CRUD Operations [pending]
+### Dependencies: 6.1
+### Description: Create the repository implementation and service methods for basic portfolio management
+### Details:
+1. Implement the PortfolioRepository interface with a database-specific implementation
+2. Create a PortfolioService class with methods to create, retrieve, update and delete portfolios
+3. Implement error handling for cases like portfolio not found, unauthorized access
+4. Add transaction management to ensure data consistency
+5. Implement pagination for retrieving multiple portfolios
+6. Write unit tests for the service methods using mock repository
+7. Test with different scenarios including empty portfolios and invalid inputs
+
+## 3. Implement Portfolio Valuation Calculation [pending]
+### Dependencies: 6.2
+### Description: Create functionality to calculate current portfolio value based on stock prices
+### Details:
+1. Create a StockPriceService interface to fetch current stock prices
+2. Implement a method in PortfolioService to calculate total portfolio value
+3. Calculate individual stock values (quantity * current price)
+4. Handle cases where stock price data is unavailable
+5. Implement caching for stock prices to improve performance
+6. Calculate portfolio performance metrics (gain/loss, percentage change)
+7. Write unit tests with mock stock price data
+8. Test edge cases like empty portfolios and portfolios with delisted stocks
+
+## 4. Implement Portfolio Update Operations with Consistency Checks [pending]
+### Dependencies: 6.2, 6.3
+### Description: Create methods to update portfolio entries with validation and consistency checks
+### Details:
+1. Implement methods to add, update, and remove stocks from a portfolio
+2. Add validation for stock symbols before adding to portfolio
+3. Implement optimistic locking to prevent concurrent update issues
+4. Create transaction boundaries to ensure atomic updates
+5. Implement business rules validation (e.g., non-negative quantities)
+6. Add logging for all portfolio modifications
+7. Write unit tests for update operations including concurrent update scenarios
+8. Test with various edge cases like updating non-existent entries
+
+## 5. Create REST API Endpoints for Portfolio Management [pending]
+### Dependencies: 6.2, 6.3, 6.4
+### Description: Implement REST controllers to expose portfolio management functionality
+### Details:
+1. Create a PortfolioController with endpoints for CRUD operations
+2. Implement endpoint for retrieving portfolio valuation
+3. Add request validation and proper error responses
+4. Implement pagination and sorting for portfolio listing
+5. Add authentication and authorization checks
+6. Document API endpoints using Swagger/OpenAPI
+7. Implement rate limiting for API endpoints
+8. Write integration tests for all endpoints
+9. Test performance with large portfolios
+
