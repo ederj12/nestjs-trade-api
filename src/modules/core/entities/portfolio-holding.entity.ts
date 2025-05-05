@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Unique } from 'typeorm';
 
-import { Stock } from '../../stocks/entities/stock.entity';
+import { Stock } from './stock.entity';
 
 import { Portfolio } from './portfolio.entity';
 

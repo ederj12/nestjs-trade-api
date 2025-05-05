@@ -5,10 +5,11 @@ import {
   OneToMany,
   CreateDateColumn,
   Index,
+  Relation,
 } from 'typeorm';
 
-import { Portfolio } from '../../portfolios/entities/portfolio.entity';
-import { Transaction } from '../../transactions/entities/transaction.entity';
+import { Portfolio } from './portfolio.entity';
+import { Transaction } from './transaction.entity';
 
 @Entity('users')
 export class User {
@@ -26,8 +27,8 @@ export class User {
   createdAt!: Date;
 
   @OneToMany(() => Portfolio, (portfolio: Portfolio) => portfolio.user)
-  portfolios!: Portfolio[];
+  portfolios!: Relation<Portfolio[]>;
 
   @OneToMany(() => Transaction, (transaction: Transaction) => transaction.user)
-  transactions!: Transaction[];
+  transactions!: Relation<Transaction[]>;
 }

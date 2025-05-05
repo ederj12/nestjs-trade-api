@@ -1,10 +1,10 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 
-import { PortfolioHolding } from '../modules/portfolios/entities/portfolio-holding.entity';
-import { Portfolio } from '../modules/portfolios/entities/portfolio.entity';
-import { Stock } from '../modules/stocks/entities/stock.entity';
-import { Transaction } from '../modules/transactions/entities/transaction.entity';
-import { User } from '../modules/users/entities/user.entity';
+import { PortfolioHolding } from '../modules/core/entities/portfolio-holding.entity';
+import { Portfolio } from '../modules/core/entities/portfolio.entity';
+import { Stock } from '../modules/core/entities/stock.entity';
+import { Transaction } from '../modules/core/entities/transaction.entity';
+import { User } from '../modules/core/entities/user.entity';
 
 export const typeOrmConfig: DataSourceOptions = {
   type: 'postgres',

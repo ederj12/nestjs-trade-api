@@ -1,8 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, Index } from 'typeorm';
 
-import { Transaction } from '../../transactions/entities/transaction.entity';
-import { User } from '../../users/entities/user.entity';
-
+import { Transaction } from './transaction.entity';
+import { User } from './user.entity';
 import { PortfolioHolding } from './portfolio-holding.entity';
 
 @Entity('portfolios')

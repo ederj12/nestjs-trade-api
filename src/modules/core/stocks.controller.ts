@@ -22,6 +22,13 @@ export class StocksController {
   constructor(private readonly stockCacheService: StockCacheService) {}
 
   /**
+   * GET /stocks/stats - Get cache statistics
+   */
+  @Get('stats')
+  getCacheStats() {
+    return this.stockCacheService.getStats();
+  }
+  /**
    * GET /stocks - List all stocks with pagination
    */
   @Get()
