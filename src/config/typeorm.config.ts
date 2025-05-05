@@ -4,9 +4,6 @@ import { Portfolio } from '../modules/portfolios/entities/portfolio.entity';
 import { PortfolioHolding } from '../modules/portfolios/entities/portfolio-holding.entity';
 import { Stock } from '../modules/stocks/entities/stock.entity';
 import { Transaction } from '../modules/transactions/entities/transaction.entity';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 export const typeOrmConfig: DataSourceOptions = {
   type: 'postgres',
