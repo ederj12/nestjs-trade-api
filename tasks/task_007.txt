@@ -9,3 +9,61 @@ Implement REST endpoints for: GET /portfolios/:userId (get user portfolio with v
 
 # Test Strategy:
 Write integration tests for each endpoint. Verify response formats and status codes. Test with various portfolio sizes and compositions.
+
+# Subtasks:
+## 1. Implement GET /portfolios/:userId and GET /portfolios/:userId/stocks endpoints in core module [pending]
+### Dependencies: None
+### Description: Create REST endpoints in the core module for retrieving a user's portfolio (with valuation) and a detailed list of stocks in the portfolio. Ensure proper HTTP status codes, error handling, and response formats. Include current valuation in the portfolio response.
+### Details:
+- Implement GET /portfolios/:userId to return the user's portfolio with current valuation.
+- Implement GET /portfolios/:userId/stocks to return a detailed list of stocks in the user's portfolio.
+- Use the PortfolioService and related services for business logic.
+- Return appropriate HTTP status codes and error messages for not found, invalid input, etc.
+- Ensure response includes current valuation (use or mock StockPriceService if needed).
+- Write integration tests for both endpoints, covering various portfolio sizes and edge cases.
+- All implementation should be in the core module.
+
+<info added on 2025-05-06T22:33:49.865Z>
+### Additional Implementation Details
+
+- Create a `StockService` class in the core module that will:
+  - Inject the `StockRepository` via constructor dependency injection
+  - Provide methods like `getStockById()`, `getStocksByIds()`, and `getCurrentPrice()`
+  - Handle data transformation between repository entities and DTOs
+
+- Implement service methods for portfolio valuation:
+  ```typescript
+  async calculatePortfolioValue(stockPositions: StockPosition[]): Promise<number> {
+    const stockIds = stockPositions.map(position => position.stockId);
+    const stocks = await this.getStocksByIds(stockIds);
+    
+    return stockPositions.reduce((total, position) => {
+      const stock = stocks.find(s => s.id === position.stockId);
+      return total + (stock.currentPrice * position.quantity);
+    }, 0);
+  }
+  ```
+
+- For testing:
+  - Create a `StockServiceMock` class in test files that mimics the real service
+  - Use Jest's `jest.mock()` to replace the real repository with test doubles
+  - Example test setup:
+    ```typescript
+    jest.mock('../repository/stock.repository');
+    
+    describe('StockService', () => {
+      let service: StockService;
+      let repository: MockType<StockRepository>;
+      
+      beforeEach(() => {
+        // Setup with mocked repository
+      });
+      
+      // Tests...
+    });
+    ```
+
+- Ensure the endpoints use proper DTO validation with class-validator decorators
+- Implement caching for stock prices to improve performance on portfolio valuation requests
+</info added on 2025-05-06T22:33:49.865Z>
+
