@@ -1,8 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Unique } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Unique, Relation } from 'typeorm';
 
-import { Stock } from './stock.entity';
-
-import { Portfolio } from './portfolio.entity';
+import type { Portfolio } from './portfolio.entity';
+import type { Stock } from './stock.entity';
 
 @Entity('portfolio_holdings')
 @Unique(['portfolio', 'stock'])
@@ -10,11 +9,11 @@ export class PortfolioHolding {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(() => Portfolio, (portfolio: Portfolio) => portfolio.holdings)
-  portfolio!: Portfolio;
+  @ManyToOne('Portfolio', 'holdings')
+  portfolio!: Relation<Portfolio>;
 
-  @ManyToOne(() => Stock, (stock: Stock) => stock.holdings)
-  stock!: Stock;
+  @ManyToOne('Stock', 'holdings')
+  stock!: Relation<Stock>;
 
   @Column('int')
   quantity!: number;
