@@ -1,8 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, Index } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  Index,
+  Relation,
+} from 'typeorm';
 
-import { Transaction } from './transaction.entity';
-import { User } from './user.entity';
-import { PortfolioHolding } from './portfolio-holding.entity';
+import type { PortfolioHolding } from './portfolio-holding.entity';
+import type { Transaction } from './transaction.entity';
+import type { User } from './user.entity';
 
 @Entity('portfolios')
 export class Portfolio {
@@ -12,16 +20,16 @@ export class Portfolio {
   @Column()
   name!: string;
 
-  @ManyToOne(() => User, (user: User) => user.portfolios)
-  user!: User;
+  @ManyToOne('User', 'portfolios')
+  user!: Relation<User>;
 
   @Index('IDX_portfolio_userId')
   @Column()
   userId!: number;
 
-  @OneToMany(() => Transaction, (transaction: Transaction) => transaction.portfolio)
-  transactions!: Transaction[];
+  @OneToMany('Transaction', 'portfolio')
+  transactions!: Relation<Transaction[]>;
 
-  @OneToMany(() => PortfolioHolding, (holding: PortfolioHolding) => holding.portfolio)
-  holdings!: PortfolioHolding[];
+  @OneToMany('PortfolioHolding', 'portfolio')
+  holdings!: Relation<PortfolioHolding[]>;
 }

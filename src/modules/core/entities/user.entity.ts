@@ -8,8 +8,8 @@ import {
   Relation,
 } from 'typeorm';
 
-import { Portfolio } from './portfolio.entity';
-import { Transaction } from './transaction.entity';
+import type { Portfolio } from './portfolio.entity';
+import type { Transaction } from './transaction.entity';
 
 @Entity('users')
 export class User {
@@ -26,9 +26,9 @@ export class User {
   @CreateDateColumn()
   createdAt!: Date;
 
-  @OneToMany(() => Portfolio, (portfolio: Portfolio) => portfolio.user)
+  @OneToMany('Portfolio', 'user')
   portfolios!: Relation<Portfolio[]>;
 
-  @OneToMany(() => Transaction, (transaction: Transaction) => transaction.user)
+  @OneToMany('Transaction', 'user')
   transactions!: Relation<Transaction[]>;
 }

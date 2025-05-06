@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index, Relation } from 'typeorm';
 
-import { Portfolio } from './portfolio.entity';
-import { Stock } from './stock.entity';
-import { User } from './user.entity';
+import type { Portfolio } from './portfolio.entity';
+import type { Stock } from './stock.entity';
+import type { User } from './user.entity';
 
 export enum TransactionType {
   BUY = 'BUY',
@@ -21,19 +21,19 @@ export class Transaction {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(() => User, (user: User) => undefined)
+  @ManyToOne('User', 'transactions')
   user!: Relation<User>;
 
   @Column()
   userId!: number;
 
-  @ManyToOne(() => Stock, (stock: Stock) => undefined, { eager: true })
+  @ManyToOne('Stock', 'transactions')
   stock!: Relation<Stock>;
 
   @Column()
   stockId!: number;
 
-  @ManyToOne(() => Portfolio, (portfolio: Portfolio) => undefined)
+  @ManyToOne('Portfolio', 'transactions')
   portfolio!: Relation<Portfolio>;
 
   @Column()

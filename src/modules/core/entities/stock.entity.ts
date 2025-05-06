@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Index, Relation } from 'typeorm';
 
-import { PortfolioHolding } from './portfolio-holding.entity';
-import { Transaction } from './transaction.entity';
+import type { PortfolioHolding } from './portfolio-holding.entity';
+import type { Transaction } from './transaction.entity';
 
 @Entity('stocks')
 export class Stock {
@@ -27,9 +27,9 @@ export class Stock {
   @Column({ nullable: true })
   exchange?: string;
 
-  @OneToMany(() => Transaction, (transaction: Transaction) => transaction.stock)
-  transactions!: Transaction[];
+  @OneToMany('Transaction', 'stock')
+  transactions!: Relation<Transaction[]>;
 
-  @OneToMany(() => PortfolioHolding, (holding: PortfolioHolding) => holding.stock)
-  holdings!: PortfolioHolding[];
+  @OneToMany('PortfolioHolding', 'stock')
+  holdings!: Relation<PortfolioHolding[]>;
 }
