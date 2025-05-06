@@ -1,4 +1,4 @@
-import dataSource from '../config/typeorm.config';
+import { dataSource } from '../config/typeorm.config';
 import { PortfolioHolding } from '../modules/core/entities/portfolio-holding.entity';
 import { Portfolio } from '../modules/core/entities/portfolio.entity';
 import { Stock } from '../modules/core/entities/stock.entity';

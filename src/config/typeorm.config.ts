@@ -1,3 +1,5 @@
+import { registerAs } from '@nestjs/config';
+import dotenv from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
 import { PortfolioHolding } from '../modules/core/entities/portfolio-holding.entity';
@@ -6,8 +8,10 @@ import { Stock } from '../modules/core/entities/stock.entity';
 import { Transaction } from '../modules/core/entities/transaction.entity';
 import { User } from '../modules/core/entities/user.entity';
 
-export const typeOrmConfig: DataSourceOptions = {
-  type: 'postgres',
+dotenv.config();
+
+const typeOrmConfig = {
+  type: 'postgres' as const,
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '5432', 10),
   username: process.env.DB_USER || 'postgres',
@@ -19,4 +23,6 @@ export const typeOrmConfig: DataSourceOptions = {
   logging: process.env.NODE_ENV === 'development',
 };
 
-export default new DataSource(typeOrmConfig);
+export default registerAs('typeorm', () => typeOrmConfig);
+
+export const dataSource = new DataSource(typeOrmConfig as DataSourceOptions);
