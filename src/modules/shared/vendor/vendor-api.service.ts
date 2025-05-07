@@ -9,13 +9,14 @@
  * const buyResult = await vendorApi.buyStock('NVDA', 0.25, 5);
  */
 
-import axios from 'axios';
-import type { AxiosInstance, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { Logger, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { VendorStockApiResponse } from './vendor-stock.type';
-import type { BuyStockRequest, BuyStockResponse } from './vendor-buy-stock.type';
+import axios from 'axios';
+
 import type { VendorApiConfig } from './vendor-api.type';
+import type { BuyStockRequest, BuyStockResponse } from './vendor-buy-stock.type';
+import type { VendorStockApiResponse } from './vendor-stock.type';
+import type { AxiosInstance, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 @Injectable()
 export class VendorApiService {

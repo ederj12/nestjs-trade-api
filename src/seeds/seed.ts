@@ -1,13 +1,13 @@
-import dataSource from '../config/typeorm.config';
-import { User } from '../modules/users/entities/user.entity';
-import { Stock } from '../modules/stocks/entities/stock.entity';
-import { Portfolio } from '../modules/portfolios/entities/portfolio.entity';
-import { PortfolioHolding } from '../modules/portfolios/entities/portfolio-holding.entity';
+import { dataSource } from '../config/typeorm.config';
+import { PortfolioHolding } from '../modules/core/entities/portfolio-holding.entity';
+import { Portfolio } from '../modules/core/entities/portfolio.entity';
+import { Stock } from '../modules/core/entities/stock.entity';
 import {
   Transaction,
   TransactionType,
   TransactionStatus,
-} from '../modules/transactions/entities/transaction.entity';
+} from '../modules/core/entities/transaction.entity';
+import { User } from '../modules/core/entities/user.entity';
 
 async function seed() {
   await dataSource.initialize();

@@ -1,42 +1,35 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import databaseConfig from './config/database.config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+
+import { CoreModule } from './modules/core/core.module';
 import { HealthModule } from './modules/health/health.module';
-import { StocksModule } from './modules/stocks/stocks.module';
-import { PortfoliosModule } from './modules/portfolios/portfolios.module';
-import { TransactionsModule } from './modules/transactions/transactions.module';
 import vendorApiConfig from './modules/shared/vendor/vendor-api.config';
-import { StatsModule } from './modules/stats/stats.module';
+
+import typeOrmConfig from '@/config/typeorm.config';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, vendorApiConfig],
+      load: [typeOrmConfig, vendorApiConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: (config: ConfigService) => ({
         type: 'postgres',
-        host: configService.get<string>('database.host'),
-        port: configService.get<number>('database.port'),
-        username: configService.get<string>('database.username'),
-        password: configService.get<string>('database.password'),
-        database: configService.get<string>('database.database'),
+        host: config.get<string>('typeorm.host'),
+        port: config.get<number>('typeorm.port'),
+        username: config.get<string>('typeorm.username'),
+        password: config.get<string>('typeorm.password'),
+        database: config.get<string>('typeorm.database'),
         autoLoadEntities: true,
         synchronize: true, // Set to false in production!
       }),
+      inject: [ConfigService],
     }),
     HealthModule,
-    StocksModule,
-    PortfoliosModule,
-    TransactionsModule,
-    StatsModule,
+    CoreModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
