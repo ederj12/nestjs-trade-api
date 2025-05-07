@@ -1,8 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index, Relation } from 'typeorm';
+import { Entity, Column, ManyToOne, Index, Relation } from 'typeorm';
 
 import type { Portfolio } from './portfolio.entity';
 import type { Stock } from './stock.entity';
 import type { User } from './user.entity';
+
+import { BaseEntity } from '@/modules/shared/database/entities/base.entity';
 
 export enum TransactionType {
   BUY = 'BUY',
@@ -17,27 +19,24 @@ export enum TransactionStatus {
 @Entity('transactions')
 @Index('IDX_transaction_user_stock', ['userId', 'stockId'])
 @Index('IDX_transaction_timestamp', ['timestamp'])
-export class Transaction {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
+export class Transaction extends BaseEntity {
   @ManyToOne('User', 'transactions')
   user!: Relation<User>;
 
   @Column()
-  userId!: number;
+  userId!: string;
 
   @ManyToOne('Stock', 'transactions')
   stock!: Relation<Stock>;
 
   @Column()
-  stockId!: number;
+  stockId!: string;
 
   @ManyToOne('Portfolio', 'transactions')
   portfolio!: Relation<Portfolio>;
 
   @Column()
-  portfolioId!: number;
+  portfolioId!: string;
 
   @Column('int')
   quantity!: number;
