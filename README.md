@@ -1,98 +1,134 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Fuse Finance Stock Trading Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This service provides a backend for stock trading operations, integrating with a mock vendor API to:
 
-## Description
+- List available stocks
+- Get user portfolios (list of their stocks and quantities)
+- Execute stock purchase transactions
+- Generate and send daily email reports (including successful and failed transactions)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+**Only these 3 endpoints and the daily email report process are required.**
 
-## Project setup
+---
 
-```bash
-$ npm install
-```
+## Features
 
-## Compile and run the project
+- REST API for stock listing, portfolio retrieval, and stock purchase
+- Scheduled daily report generation and email delivery
+- Robust error handling and distributed locking for scheduled jobs
+- Modular, production-ready NestJS architecture
+- PostgreSQL database with TypeORM
+- Docker and docker-compose support for local development
+- Health checks and monitoring endpoints
 
-```bash
-# development
-$ npm run start
+---
 
-# watch mode
-$ npm run start:dev
+## Quickstart
 
-# production mode
-$ npm run start:prod
-```
+### Prerequisites
 
-## Run tests
+- Node.js v22+
+- npm v10+
+- Docker & docker-compose (for DB and pgAdmin)
+
+### 1. Clone the repository
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+git clone <your-repo-url>
+cd fuse-home-task
 ```
 
-## Deployment
+### 2. Configure Environment Variables
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Create a `.env` file in the root with the following variables:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+```env
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=fuse_finance
+
+# Vendor API
+VENDOR_API_URL=https://api.challenge.fusefinance.com
+VENDOR_API_KEY=nSbPbFJfe95BFZufiDwF32UhqZLEVQ5K4wdtJI2e
+VENDOR_API_TIMEOUT=10000
+VENDOR_API_MAX_RETRIES=3
+VENDOR_API_RETRY_DELAY=1000
+
+# Email (for report delivery)
+EMAIL_HOST=<smtp-host>
+EMAIL_PORT=<smtp-port>
+EMAIL_USER=<smtp-user>
+EMAIL_PASS=<smtp-pass>
+EMAIL_FROM=<from-address>
+EMAIL_TO=<recipient-address>
+
+# App
+PORT=3000
+```
+
+### 3. Start Services (Recommended: Docker Compose)
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker-compose up -d
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+- Postgres: available on `${DB_PORT}`
+- pgAdmin: [http://localhost:5050](http://localhost:5050) (Email: admin@fuse.finance, Password: admin)
 
-## Resources
+### 4. Install Dependencies & Run App
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+npm install
+npm run build
+npm run start:dev
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Or run in production mode:
 
-## Support
+```bash
+npm run start:prod
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Or use Docker:
 
-## Stay in touch
+```bash
+docker build -t fuse-finance-be .
+docker run --env-file .env -p 3000:3000 fuse-finance-be
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
-## License
+## API Endpoints
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- `GET /stocks` — List available stocks (with pagination)
+- `POST /stocks/:symbol/buy` — Buy a stock (price must be within 2% of current price)
+- `GET /portfolios/:userId` — Get a user's portfolio
+- `GET /reports/daily` — Trigger daily report generation (admin/test only)
+
+See OpenAPI/Swagger docs (if enabled) or controller files for details.
+
+---
+
+## Testing
+
+- **Unit tests:**
+  ```bash
+  npm run test
+  ```
+- **E2E tests:**
+  ```bash
+  npm run test:e2e
+  ```
+
+---
+
+## Additional Notes
+
+- The service uses distributed locking for scheduled jobs to prevent duplicate report generation.
+- All configuration is managed via environment variables and `@nestjs/config`.
+- For more details, see [REPORT.md](./REPORT.md).
