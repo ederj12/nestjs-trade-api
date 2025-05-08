@@ -24,7 +24,7 @@ import typeOrmConfig from '@/config/typeorm.config';
         password: config.get<string>('typeorm.password'),
         database: config.get<string>('typeorm.database'),
         autoLoadEntities: true,
-        synchronize: true, // Set to false in production!
+        synchronize: false, // Set to false in production!
       }),
       inject: [ConfigService],
     }),
