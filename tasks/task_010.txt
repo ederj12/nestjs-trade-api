@@ -11,7 +11,7 @@ Implement a service to generate daily transaction reports. Create data aggregati
 Test report generation with various transaction scenarios. Verify data aggregation accuracy. Test scheduling functionality.
 
 # Subtasks:
-## 1. Create Database Schema for Report Storage [pending]
+## 1. Create Database Schema for Report Storage [done]
 ### Dependencies: None
 ### Description: Design and implement the database schema to store report history and metadata
 ### Details:
@@ -27,7 +27,7 @@ Testing approach:
 2. Create integration tests to verify repository operations
 3. Test edge cases like storing large report data
 
-## 2. Implement Transaction Data Aggregation Logic [pending]
+## 2. Implement Transaction Data Aggregation Logic [done]
 ### Dependencies: 10.1
 ### Description: Create service to query and aggregate transaction data for reporting
 ### Details:

@@ -551,7 +551,7 @@
           "description": "Design and implement the database schema to store report history and metadata",
           "dependencies": [],
           "details": "Implementation details:\n1. Create a new entity class `ReportEntity` with fields for: id, reportDate, generatedAt, reportType, status, totalTransactions, successfulTransactions, failedTransactions, reportData (JSON), emailDeliveryStatus\n2. Set up appropriate indexes for efficient querying (e.g., by date, status)\n3. Create a repository class for the report entity\n4. Implement database migrations\n5. Add validation for entity fields\n\nTesting approach:\n1. Write unit tests for entity validation\n2. Create integration tests to verify repository operations\n3. Test edge cases like storing large report data",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 10
         },
         {
@@ -562,7 +562,7 @@
             1
           ],
           "details": "Implementation details:\n1. Create a `ReportAggregationService` class with methods to query transaction data for a specific date range\n2. Implement aggregation logic to calculate: total transaction count, successful transactions, failed transactions, transaction volume, average transaction value\n3. Add grouping by transaction types, payment methods, and time intervals (hourly)\n4. Implement caching strategy for expensive aggregation operations\n5. Handle edge cases: no transactions, only failed transactions, partial data\n\nTesting approach:\n1. Unit test each aggregation function with mock data\n2. Test with various date ranges (single day, week, month)\n3. Test edge cases with empty datasets and boundary conditions\n4. Benchmark performance with large datasets",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 10
         },
         {
