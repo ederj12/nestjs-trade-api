@@ -9,7 +9,7 @@ export class PortfolioRepository extends Repository<Portfolio> {
     super(Portfolio, dataSource.createEntityManager());
   }
 
-  async findPortfolioWithHoldings(portfolioId: number) {
+  async findPortfolioWithHoldings(portfolioId: string) {
     return this.findOne({
       where: { id: portfolioId },
       relations: ['holdings', 'holdings.stock'],

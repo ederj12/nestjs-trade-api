@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { CachedStockData } from '../models/cached-stock-data.type';
+import { Stock } from '@/modules/core/entities/stock.entity';
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -9,7 +9,7 @@ const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
  */
 @Injectable()
 export class StockCacheService {
-  private readonly cache = new Map<string, CachedStockData>();
+  private readonly cache = new Map<string, Stock>();
   private readonly logger = new Logger(StockCacheService.name);
   private cacheHits = 0;
   private cacheMisses = 0;
@@ -19,7 +19,7 @@ export class StockCacheService {
    * Get cached stock data by symbol. Returns undefined if not found or stale.
    * @param symbol Stock symbol
    */
-  getStock(symbol: string): CachedStockData | undefined {
+  getStock(symbol: string): Stock | undefined {
     const data = this.cache.get(symbol);
     if (!data) {
       this.cacheMisses++;
@@ -40,9 +40,9 @@ export class StockCacheService {
   /**
    * Set cached stock data for a symbol.
    * @param symbol Stock symbol
-   * @param data CachedStockData
+   * @param data Stock
    */
-  setStock(symbol: string, data: CachedStockData): void {
+  setStock(symbol: string, data: Stock): void {
     this.cache.set(symbol, data);
     this.logger.debug(`Cache set for symbol: ${symbol}`);
   }
@@ -58,10 +58,10 @@ export class StockCacheService {
 
   /**
    * Check if cached data is stale (older than TTL).
-   * @param data CachedStockData
+   * @param data Stock
    */
-  isStale(data: CachedStockData): boolean {
-    return Date.now() - new Date(data.timestamp).getTime() > CACHE_TTL_MS;
+  isStale(data: Stock): boolean {
+    return Date.now() - new Date(data.lastUpdated).getTime() > CACHE_TTL_MS;
   }
 
   /**
@@ -103,9 +103,9 @@ export class StockCacheService {
    * Refresh cache for a set of stocks (partial update).
    * Only updates entries that are stale or missing.
    * Uses a simple lock to prevent concurrent updates.
-   * @param stocks Array of CachedStockData
+   * @param stocks Array of Stock
    */
-  async refreshStocks(stocks: CachedStockData[]): Promise<void> {
+  async refreshStocks(stocks: Stock[]): Promise<void> {
     if (this.updateLock) {
       this.logger.warn('Cache update in progress, skipping refresh');
       return;
@@ -136,5 +136,22 @@ export class StockCacheService {
       hitRate: total ? this.cacheHits / total : 0,
       missRate: total ? this.cacheMisses / total : 0,
     };
+  }
+
+  /**
+   * Get cached stock data by id (uuid). Returns undefined if not found or stale.
+   * @param id Stock id (uuid)
+   */
+  getStockById(id: string): Stock | undefined {
+    for (const data of this.cache.values()) {
+      if ((data as any).id === id) {
+        if (this.isStale(data)) {
+          this.cache.delete((data as any).symbol);
+          return undefined;
+        }
+        return data;
+      }
+    }
+    return undefined;
   }
 }

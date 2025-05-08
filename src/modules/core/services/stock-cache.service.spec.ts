@@ -12,7 +12,18 @@ describe('StockCacheService', () => {
   });
 
   it('should set and get a stock', () => {
-    const stock: CachedStockData = { symbol: 'AAPL', price: 100, currency: 'USD', timestamp: now };
+    const stock: CachedStockData = {
+      id: 'uuid-stock-aapl',
+      symbol: 'AAPL',
+      price: 100,
+      lastUpdated: now,
+      name: 'Apple Inc.',
+      sector: 'Tech',
+      change: 0,
+      createdAt: now,
+      updatedAt: now,
+      currency: 'USD',
+    };
     service.setStock(stock.symbol, stock);
     expect(service.getStock('AAPL')).toMatchObject(stock);
     expect(service.hasStock('AAPL')).toBe(true);
@@ -25,10 +36,16 @@ describe('StockCacheService', () => {
 
   it('should detect and invalidate stale stock', () => {
     const stock: CachedStockData = {
+      id: 'uuid-stock-stale',
       symbol: 'STALE',
       price: 50,
+      lastUpdated: staleDate,
+      name: 'Stale Stock',
+      sector: 'Tech',
+      change: 0,
+      createdAt: staleDate,
+      updatedAt: staleDate,
       currency: 'USD',
-      timestamp: staleDate,
     };
     service.setStock(stock.symbol, stock);
     expect(service.isStale(stock)).toBe(true);
@@ -37,23 +54,78 @@ describe('StockCacheService', () => {
   });
 
   it('should invalidate a symbol', () => {
-    const stock: CachedStockData = { symbol: 'GOOG', price: 200, currency: 'USD', timestamp: now };
+    const stock: CachedStockData = {
+      id: 'uuid-stock-goog',
+      symbol: 'GOOG',
+      price: 200,
+      lastUpdated: now,
+      name: 'Google',
+      sector: 'Tech',
+      change: 0,
+      createdAt: now,
+      updatedAt: now,
+      currency: 'USD',
+    };
     service.setStock(stock.symbol, stock);
     service.invalidateSymbol('GOOG');
     expect(service.getStock('GOOG')).toBeUndefined();
   });
 
   it('should invalidate all', () => {
-    service.setStock('A', { symbol: 'A', price: 1, currency: 'USD', timestamp: now });
-    service.setStock('B', { symbol: 'B', price: 2, currency: 'USD', timestamp: now });
+    service.setStock('A', {
+      id: 'uuid-stock-a',
+      symbol: 'A',
+      price: 1,
+      lastUpdated: now,
+      name: 'Stock A',
+      sector: 'Tech',
+      change: 0,
+      createdAt: now,
+      updatedAt: now,
+      currency: 'USD',
+    });
+    service.setStock('B', {
+      id: 'uuid-stock-b',
+      symbol: 'B',
+      price: 2,
+      lastUpdated: now,
+      name: 'Stock B',
+      sector: 'Tech',
+      change: 0,
+      createdAt: now,
+      updatedAt: now,
+      currency: 'USD',
+    });
     service.invalidateAll();
     expect(service.getStock('A')).toBeUndefined();
     expect(service.getStock('B')).toBeUndefined();
   });
 
   it('should invalidate all stale entries', () => {
-    service.setStock('A', { symbol: 'A', price: 1, currency: 'USD', timestamp: now });
-    service.setStock('B', { symbol: 'B', price: 2, currency: 'USD', timestamp: staleDate });
+    service.setStock('A', {
+      id: 'uuid-stock-a',
+      symbol: 'A',
+      price: 1,
+      lastUpdated: now,
+      name: 'Stock A',
+      sector: 'Tech',
+      change: 0,
+      createdAt: now,
+      updatedAt: now,
+      currency: 'USD',
+    });
+    service.setStock('B', {
+      id: 'uuid-stock-b',
+      symbol: 'B',
+      price: 2,
+      lastUpdated: staleDate,
+      name: 'Stock B',
+      sector: 'Tech',
+      change: 0,
+      createdAt: staleDate,
+      updatedAt: staleDate,
+      currency: 'USD',
+    });
     const count = service.invalidateStale();
     expect(count).toBe(1);
     expect(service.getStock('A')).toBeDefined();
@@ -61,12 +133,67 @@ describe('StockCacheService', () => {
   });
 
   it('should refresh only stale or missing stocks', async () => {
-    service.setStock('A', { symbol: 'A', price: 1, currency: 'USD', timestamp: now });
-    service.setStock('B', { symbol: 'B', price: 2, currency: 'USD', timestamp: staleDate });
+    service.setStock('A', {
+      id: 'uuid-stock-a',
+      symbol: 'A',
+      price: 1,
+      lastUpdated: now,
+      name: 'Stock A',
+      sector: 'Tech',
+      change: 0,
+      createdAt: now,
+      updatedAt: now,
+      currency: 'USD',
+    });
+    service.setStock('B', {
+      id: 'uuid-stock-b',
+      symbol: 'B',
+      price: 2,
+      lastUpdated: staleDate,
+      name: 'Stock B',
+      sector: 'Tech',
+      change: 0,
+      createdAt: staleDate,
+      updatedAt: staleDate,
+      currency: 'USD',
+    });
     const stocks: CachedStockData[] = [
-      { symbol: 'A', price: 10, currency: 'USD', timestamp: now },
-      { symbol: 'B', price: 20, currency: 'USD', timestamp: now },
-      { symbol: 'C', price: 30, currency: 'USD', timestamp: now },
+      {
+        id: 'uuid-stock-a',
+        symbol: 'A',
+        price: 10,
+        lastUpdated: now,
+        name: 'Stock A',
+        sector: 'Tech',
+        change: 0,
+        createdAt: now,
+        updatedAt: now,
+        currency: 'USD',
+      },
+      {
+        id: 'uuid-stock-b',
+        symbol: 'B',
+        price: 20,
+        lastUpdated: now,
+        name: 'Stock B',
+        sector: 'Tech',
+        change: 0,
+        createdAt: now,
+        updatedAt: now,
+        currency: 'USD',
+      },
+      {
+        id: 'uuid-stock-c',
+        symbol: 'C',
+        price: 30,
+        lastUpdated: now,
+        name: 'Stock C',
+        sector: 'Tech',
+        change: 0,
+        createdAt: now,
+        updatedAt: now,
+        currency: 'USD',
+      },
     ];
     await service.refreshStocks(stocks);
     expect(service.getStock('A')!.price).toBe(1); // not stale, not updated
@@ -76,13 +203,37 @@ describe('StockCacheService', () => {
 
   it('should not allow concurrent refreshes (lock)', async () => {
     service['updateLock'] = true;
-    const stocks: CachedStockData[] = [{ symbol: 'A', price: 1, currency: 'USD', timestamp: now }];
+    const stocks: CachedStockData[] = [
+      {
+        id: 'uuid-stock-a',
+        symbol: 'A',
+        price: 1,
+        lastUpdated: now,
+        name: 'Stock A',
+        sector: 'Tech',
+        change: 0,
+        createdAt: now,
+        updatedAt: now,
+        currency: 'USD',
+      },
+    ];
     await service.refreshStocks(stocks); // should skip due to lock
     expect(service.getStock('A')).toBeUndefined();
   });
 
   it('should track cache hits and misses', () => {
-    const stock: CachedStockData = { symbol: 'AAPL', price: 100, currency: 'USD', timestamp: now };
+    const stock: CachedStockData = {
+      id: 'uuid-stock-aapl',
+      symbol: 'AAPL',
+      price: 100,
+      lastUpdated: now,
+      name: 'Apple Inc.',
+      sector: 'Tech',
+      change: 0,
+      createdAt: now,
+      updatedAt: now,
+      currency: 'USD',
+    };
     service.setStock(stock.symbol, stock);
     service.getStock('AAPL'); // hit
     service.getStock('AAPL'); // hit

@@ -1,5 +1,13 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsInt, IsNumber, IsObject, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsInt,
+  IsNumber,
+  IsObject,
+  IsString,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
 
 export class PortfolioHoldingStockDto {
   @IsInt()
@@ -21,14 +29,14 @@ export class PortfolioHoldingStockDto {
 }
 
 export class PortfolioResponseDto {
-  @IsInt()
-  id!: number;
+  @IsUUID()
+  id!: string;
 
   @IsString()
   name!: string;
 
-  @IsInt()
-  userId!: number;
+  @IsUUID()
+  userId!: string;
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -41,4 +49,21 @@ export class PortfolioStockResponseDto {
   @ValidateNested({ each: true })
   @Type(() => PortfolioHoldingStockDto)
   stocks!: PortfolioHoldingStockDto[];
+}
+
+export class GetPortfolioResponseDto {
+  @IsUUID()
+  id!: string;
+
+  @IsString()
+  name!: string;
+
+  @IsUUID()
+  userId!: string;
+
+  @ValidateNested({ each: true })
+  holdings!: any[];
+
+  @ValidateNested({ each: true })
+  transactions!: any[];
 }

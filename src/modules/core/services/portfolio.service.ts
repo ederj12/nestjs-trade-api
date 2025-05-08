@@ -40,7 +40,7 @@ export class PortfolioService {
     });
   }
 
-  async getPortfolioByUserId(userId: number): Promise<Portfolio> {
+  async getPortfolioByUserId(userId: string): Promise<Portfolio> {
     const portfolio = await this.portfolioRepository.findOne({
       where: { userId },
       relations: ['holdings', 'holdings.stock'],

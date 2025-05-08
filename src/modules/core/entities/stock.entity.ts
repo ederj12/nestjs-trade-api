@@ -21,9 +21,9 @@ export class Stock extends BaseEntity {
   @Column()
   sector!: string;
 
-  @Column()
+  @Column({ default: 'USD' })
   currency!: string;
 
-  @Column()
+  @Column('decimal', { precision: 5, scale: 2 })
   change!: number;
 }

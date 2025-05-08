@@ -9,7 +9,7 @@ export class TransactionRepository extends Repository<Transaction> {
     super(Transaction, dataSource.createEntityManager());
   }
 
-  async getTransactionHistory(userId: number, limit = 20, offset = 0) {
+  async getTransactionHistory(userId: string, limit = 20, offset = 0) {
     return this.find({
       where: { userId },
       order: { timestamp: 'DESC' },

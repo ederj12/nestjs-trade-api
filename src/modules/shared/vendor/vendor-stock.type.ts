@@ -1,7 +1,7 @@
 // Vendor stock API response types
 
 export interface VendorStockItem {
-  lastUpdated: string; // ISO date string
+  lastUpdated: Date;
   change: number;
   price: number;
   name: string;

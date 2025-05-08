@@ -1,14 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Unique, Relation } from 'typeorm';
+import { Entity, Column, ManyToOne, Unique, Relation } from 'typeorm';
 
 import type { Portfolio } from './portfolio.entity';
 import type { Stock } from './stock.entity';
 
+import { BaseEntity } from '@/modules/shared/database/entities/base.entity';
+
 @Entity('portfolio_holdings')
 @Unique(['portfolio', 'stock'])
-export class PortfolioHolding {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
+export class PortfolioHolding extends BaseEntity {
   @ManyToOne('Portfolio', 'holdings')
   portfolio!: Relation<Portfolio>;
 
