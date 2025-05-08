@@ -1,6 +1,6 @@
-import { IsUUID, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
+import { IsUUID, IsString } from 'class-validator';
 
 export class StockPurchaseResponseDto {
   @ApiProperty({ example: 'uuid-transaction', description: 'Transaction ID' })

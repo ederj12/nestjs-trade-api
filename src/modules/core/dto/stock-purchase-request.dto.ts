@@ -1,6 +1,6 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsUUID, IsInt, IsPositive, IsNumber, Min, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class StockPurchaseRequestDto {
   @ApiProperty({ example: 'uuid-user', description: 'User ID' })

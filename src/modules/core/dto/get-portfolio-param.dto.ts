@@ -1,5 +1,5 @@
-import { IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsUUID } from 'class-validator';
 
 export class GetPortfolioParamDto {
   @ApiProperty({ example: 'uuid-user', description: 'User ID' })

@@ -1,5 +1,5 @@
-import { Type, Expose, Exclude } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type, Expose, Exclude } from 'class-transformer';
 import {
   IsArray,
   IsInt,

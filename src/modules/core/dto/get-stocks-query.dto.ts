@@ -1,6 +1,6 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, Min, Max, IsOptional } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class GetStocksQueryDto {
   @ApiProperty({ example: 1, description: 'Page number (min 1)' })
