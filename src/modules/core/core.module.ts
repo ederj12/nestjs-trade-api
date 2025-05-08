@@ -14,6 +14,7 @@ import { ReportAggregationService } from './services/report-aggregation.service'
 import { ReportFormattingService } from './services/report-formatting.service';
 import { ReportGenerationService } from './services/report-generation.service';
 
+import { EmailTestController } from '@/modules/core/controllers/email-test.controller';
 import { StocksController } from '@/modules/core/controllers/stocks.controller';
 import { ReportEntity } from '@/modules/core/entities/report.entity';
 import { Stock } from '@/modules/core/entities/stock.entity';
@@ -28,7 +29,6 @@ import { EmailDeliveryService } from '@/modules/core/services/email-delivery.ser
 import { StockCacheService } from '@/modules/core/services/stock-cache.service';
 import { TransactionService } from '@/modules/core/services/transaction.service';
 import { VendorModule } from '@/modules/shared/vendor/vendor.module';
-import { EmailTestController } from '@/modules/core/controllers/email-test.controller';
 
 @Module({
   imports: [
