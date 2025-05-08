@@ -44,7 +44,7 @@ Testing approach:
 3. Test edge cases with empty datasets and boundary conditions
 4. Benchmark performance with large datasets
 
-## 3. Create Report Formatting Service [pending]
+## 3. Create Report Formatting Service [done]
 ### Dependencies: 10.2
 ### Description: Implement service to format aggregated data into structured reports for email delivery
 ### Details:
@@ -61,7 +61,7 @@ Testing approach:
 3. Test rendering of edge cases (zero values, extremely large values)
 4. Verify CSV generation with different data structures
 
-## 4. Implement Report Generation Service [pending]
+## 4. Implement Report Generation Service [done]
 ### Dependencies: 10.1, 10.2, 10.3
 ### Description: Create the core reporting service that orchestrates data aggregation, formatting, and storage
 ### Details:
