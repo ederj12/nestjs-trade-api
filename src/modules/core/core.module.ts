@@ -14,6 +14,7 @@ import { ReportAggregationService } from './services/report-aggregation.service'
 import { ReportFormattingService } from './services/report-formatting.service';
 import { ReportGenerationService } from './services/report-generation.service';
 
+import { EmailTestController } from '@/modules/core/controllers/email-test.controller';
 import { StocksController } from '@/modules/core/controllers/stocks.controller';
 import { ReportEntity } from '@/modules/core/entities/report.entity';
 import { Stock } from '@/modules/core/entities/stock.entity';
@@ -53,6 +54,6 @@ import { VendorModule } from '@/modules/shared/vendor/vendor.module';
     EmailDeliveryService,
   ],
   exports: [PortfolioService, StockCacheService],
-  controllers: [PortfoliosController, StocksController, ReportsController],
+  controllers: [PortfoliosController, StocksController, ReportsController, EmailTestController],
 })
 export class CoreModule {}

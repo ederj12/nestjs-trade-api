@@ -12,6 +12,7 @@ import {
   UseInterceptors,
   Req,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { GetStockParamDto } from '../dto/get-stock-param.dto';
@@ -25,6 +26,7 @@ import { TransactionService } from '../services/transaction.service';
 /**
  * Controller for stock listing endpoints.
  */
+@ApiTags('stocks')
 @Controller('stocks')
 export class StocksController {
   constructor(
@@ -34,15 +36,30 @@ export class StocksController {
 
   /**
    * GET /stocks/stats - Get cache statistics
+   * (Not included in Swagger docs as it's for internal/monitoring use)
    */
   @Get('stats')
   getCacheStats() {
     return this.stockCacheService.getStats();
   }
+
   /**
    * GET /stocks - List all stocks with pagination
    */
   @Get()
+  @ApiOperation({ summary: 'List all stocks with pagination' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 20 })
+  @ApiResponse({
+    status: 200,
+    description: 'List of stocks',
+    schema: {
+      example: {
+        data: [{ symbol: 'AAPL', name: 'Apple Inc.', price: 170.5 }],
+        meta: { total: 1, page: 1, limit: 20 },
+      },
+    },
+  })
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async getStocks(@Query() query: GetStocksQueryDto) {
     // Get all stocks from cache
@@ -63,6 +80,14 @@ export class StocksController {
    * GET /stocks/:symbol - Get single stock details by symbol
    */
   @Get(':symbol')
+  @ApiOperation({ summary: 'Get single stock details by symbol' })
+  @ApiParam({ name: 'symbol', type: String, example: 'AAPL', description: 'Stock symbol' })
+  @ApiResponse({
+    status: 200,
+    description: 'Stock details',
+    schema: { example: { data: { symbol: 'AAPL', name: 'Apple Inc.', price: 170.5 } } },
+  })
+  @ApiResponse({ status: 404, description: 'Stock not found' })
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async getStockBySymbol(@Param() params: GetStockParamDto) {
     const stock = this.stockCacheService.getStock(params.symbol);
@@ -79,6 +104,13 @@ export class StocksController {
    * POST /stocks/purchase - Purchase stock (create transaction)
    */
   @Post('purchase')
+  @ApiOperation({ summary: 'Purchase stock (create transaction)' })
+  @ApiBody({ type: StockPurchaseRequestDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Stock purchase response',
+    type: StockPurchaseResponseDto,
+  })
   @UseInterceptors(TransactionInterceptor)
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async purchaseStock(

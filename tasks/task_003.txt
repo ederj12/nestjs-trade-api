@@ -1,6 +1,6 @@
 # Task ID: 3
 # Title: Vendor API Integration Service
-# Status: pending
+# Status: done
 # Dependencies: 1
 # Priority: high
 # Description: Create service to interact with the vendor API for stock data
