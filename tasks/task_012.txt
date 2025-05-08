@@ -11,7 +11,7 @@ Create README.md with setup instructions. Write REPORT.md with architecture deta
 Perform end-to-end testing of the entire system. Verify documentation accuracy. Test setup process following the documentation.
 
 # Subtasks:
-## 1. Create README.md with Setup Instructions [pending]
+## 1. Create README.md with Setup Instructions [in-progress]
 ### Dependencies: None
 ### Description: Develop a comprehensive README.md file that provides clear setup instructions and project overview
 ### Details:
@@ -27,6 +27,80 @@ Testing approach:
 - Verify all installation steps work on a clean environment
 - Have a team member follow the instructions to confirm clarity
 - Check formatting and readability on GitHub
+
+<info added on 2025-05-08T08:48:11.974Z>
+## Enhanced Implementation Details
+
+### README Structure Template
+```markdown
+# Project Name
+
+## Overview
+[Brief description of the project]
+
+## Features
+- [Feature 1]
+- [Feature 2]
+- [Feature 3]
+
+## Technologies
+- [Technology 1] - [Brief description]
+- [Technology 2] - [Brief description]
+- [Technology 3] - [Brief description]
+
+## Prerequisites
+- [Requirement 1] v[version]
+- [Requirement 2] v[version]
+- [Requirement 3] v[version]
+
+## Installation
+```bash
+# Clone the repository
+git clone [repository-url]
+
+# Navigate to project directory
+cd [project-directory]
+
+# Install dependencies
+[command to install dependencies]
+
+# Configure environment
+[environment setup commands]
+
+# Start the application
+[startup command]
+```
+
+## Usage Examples
+[Provide 2-3 concrete examples with code snippets]
+
+## Troubleshooting
+| Issue | Solution |
+|-------|----------|
+| [Common issue 1] | [Solution steps] |
+| [Common issue 2] | [Solution steps] |
+
+## Contributing
+[Contribution guidelines]
+
+## License
+[License information]
+```
+
+### Validation Checklist
+- [ ] All links are functional
+- [ ] Code blocks have proper syntax highlighting
+- [ ] Installation steps work on all supported platforms (Windows/Mac/Linux)
+- [ ] Screenshots/diagrams are properly displayed
+- [ ] Badges (build status, version, etc.) are current and working
+- [ ] Contact information is up-to-date
+
+### Recommended Tools
+- Use a Markdown linter to ensure consistent formatting
+- Consider adding a table of contents for longer READMEs
+- Include badges for build status, test coverage, and version information
+- Add screenshots or GIFs demonstrating key features
+</info added on 2025-05-08T08:48:11.974Z>
 
 ## 2. Create REPORT.md with Architecture Details [pending]
 ### Dependencies: None
@@ -125,69 +199,4 @@ Testing approach:
 - Verify that linting passes with no errors
 - Conduct code reviews for significant refactoring changes
 - Document any architectural improvements made during refactoring
-
----
-
-## Subtasks and Implementation Rules (Expanded)
-
-### Subtasks for Task 12: Documentation and Final Testing
-
-1. **Create README.md with Setup Instructions**
-   - Write a comprehensive `README.md` (project overview, setup, usage, troubleshooting, contribution, license).
-   - Implementation: Ensure all steps work in a clean environment; review for clarity and formatting.
-
-2. **Create REPORT.md with Architecture Details**
-   - Write a detailed `REPORT.md` (architecture, design decisions, diagrams, DB schema, performance, security, scalability).
-   - Implementation: Review with technical team; ensure diagrams render on GitHub.
-
-3. **Document API Endpoints with Swagger**
-   - Integrate Swagger/OpenAPI; annotate all endpoints; provide examples and schemas.
-   - Implementation: Verify all endpoints are documented and accessible via `/api-docs`.
-
-4. **Create Environment Setup Guide**
-   - Document all environment variables, setup for dev/test/prod, DB setup, third-party configs.
-   - Implementation: Provide `.env.example`; verify by setting up a fresh environment.
-
-5. **Perform Integration and End-to-End Testing**
-   - Implement and run integration/e2e tests for all critical flows and error cases.
-   - Implementation: Document results; ensure tests are repeatable and reliable.
-
-6. **Ensure Code Quality and Perform Refactoring**
-   - Run ESLint, Prettier; fix all issues; refactor as needed; optimize performance.
-   - Implementation: Run all tests after refactoring; document improvements.
-
----
-
-### Implementation Rules to Follow
-
-- **Cursor Rules:**  
-  - Use clear, actionable, and DRY rules.  
-  - Reference actual code and keep rules up to date.  
-  - Use code blocks and file references as per [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc).
-
-- **Development Workflow:**  
-  - Use Task Master tools for all task management.  
-  - Log detailed plans and progress in each subtask using `update_subtask`.  
-  - Mark subtasks as `in-progress` when starting, and `done` when complete.  
-  - Commit changes with clear, conventional messages.
-
-- **NestJS/TypeScript:**  
-  - Use modular architecture, DTOs, services, and controllers.  
-  - Follow naming conventions and SOLID principles.  
-  - Document public classes/methods with JSDoc.  
-  - Write unit and e2e tests for all public functions.
-
-- **Self-Improve:**  
-  - Update or add rules if new patterns emerge or repeated issues are found.
-
----
-
-### Step-by-Step Plan for Subtask 1: Create README.md with Setup Instructions
-
-1. Review the current `README.md` for completeness and clarity.
-2. Log a detailed implementation plan in the subtask using Task Master.
-3. Set the subtask status to `in-progress`.
-4. Make any necessary improvements or additions.
-5. Test the setup process using the README.
-6. Mark the subtask as `done` and commit with a clear message.
 

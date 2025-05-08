@@ -28,6 +28,7 @@ import { EmailDeliveryService } from '@/modules/core/services/email-delivery.ser
 import { StockCacheService } from '@/modules/core/services/stock-cache.service';
 import { TransactionService } from '@/modules/core/services/transaction.service';
 import { VendorModule } from '@/modules/shared/vendor/vendor.module';
+import { EmailTestController } from '@/modules/core/controllers/email-test.controller';
 
 @Module({
   imports: [
@@ -53,6 +54,6 @@ import { VendorModule } from '@/modules/shared/vendor/vendor.module';
     EmailDeliveryService,
   ],
   exports: [PortfolioService, StockCacheService],
-  controllers: [PortfoliosController, StocksController, ReportsController],
+  controllers: [PortfoliosController, StocksController, ReportsController, EmailTestController],
 })
 export class CoreModule {}

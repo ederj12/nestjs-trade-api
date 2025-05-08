@@ -23,4 +23,18 @@ export class ReportsController {
       return { success: false, message: error.message };
     }
   }
+
+  /**
+   * Endpoint to manually trigger the scheduled daily report generation logic (handleDailyReport).
+   * Useful for testing the scheduled report logic without waiting for the cron job.
+   */
+  @Post('test-daily')
+  async testDailyReport() {
+    try {
+      await this.reportSchedulerService.handleDailyReport();
+      return { success: true, message: 'Scheduled daily report logic executed' };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
 }
