@@ -470,7 +470,7 @@
           "title": "Design Transaction Processing Service structure and DTOs",
           "description": "Define the structure for the transaction processing service in the core module. Create DTOs for transaction requests and responses. Plan controller, service, repository, and test structure. Ensure all code is placed in the core module.",
           "details": "- Design request and response DTOs for stock purchase transactions (fields: userId, stockSymbol, quantity, price, etc.)\n- Plan controller endpoints (e.g., POST /transactions)\n- Define service and repository method signatures\n- Outline integration and unit test structure\n- Ensure all files are placed in the core module\n- Prepare for DB transaction handling using NestJS interceptors",
-          "status": "pending",
+          "status": "done",
           "dependencies": [],
           "parentTaskId": 8
         },
@@ -479,7 +479,7 @@
           "title": "Implement Transaction Controller and Endpoints",
           "description": "Create a controller in the core module for transaction processing. Implement POST /transactions endpoint for stock purchase. Integrate with the service layer. Use DTOs for request/response validation. Prepare for DB transaction handling via interceptor.",
           "details": "- Create TransactionController in core module\n- Implement POST /transactions endpoint\n- Use request/response DTOs for validation\n- Inject TransactionService\n- Prepare for DB transaction handling using NestJS interceptor\n- Return appropriate HTTP status codes and error messages\n- Add Swagger/OpenAPI decorators if needed",
-          "status": "pending",
+          "status": "done",
           "dependencies": [],
           "parentTaskId": 8
         },
@@ -488,7 +488,7 @@
           "title": "Implement Transaction Service with Price Validation and Retry Logic",
           "description": "Create a TransactionService in the core module. Implement price validation logic (must be within 2% of current price). Implement retry mechanism for failed transactions. Integrate with repository and portfolio update logic. Use database transactions for atomicity.",
           "details": "- Create TransactionService in core\n- Implement method to process stock purchase (validate price, update portfolio, record transaction)\n- Price must be within 2% of current price (fetch from StockRepository/StockService)\n- Implement retry logic for transient failures (e.g., DB errors)\n- Use TypeORM transactions for atomicity\n- Integrate with PortfolioService for portfolio updates\n- Throw appropriate exceptions for business rule violations\n- Prepare for DB transaction handling using NestJS interceptor",
-          "status": "pending",
+          "status": "done",
           "dependencies": [],
           "parentTaskId": 8
         },
@@ -497,7 +497,7 @@
           "title": "Implement Transaction Repository Methods",
           "description": "Extend the TransactionRepository in the core module to support transaction recording and retrieval. Ensure methods support atomic operations and are compatible with TypeORM transactions.",
           "details": "- Add methods to TransactionRepository for saving and retrieving transactions\n- Ensure save method supports atomic operation within a transaction\n- Add methods for querying transactions by user, stock, or date if needed\n- Integrate with TransactionService\n- Prepare for use with NestJS transaction interceptor",
-          "status": "pending",
+          "status": "done",
           "dependencies": [],
           "parentTaskId": 8
         },
@@ -506,7 +506,7 @@
           "title": "Implement Database Transaction Interceptor",
           "description": "Create a NestJS interceptor in the core module to handle database transactions for transaction processing endpoints. Ensure all operations in the transaction flow are atomic and rolled back on error.",
           "details": "- Implement a NestJS interceptor for DB transaction management\n- Apply interceptor to transaction processing endpoints/controllers\n- Ensure all service/repository operations are executed within a transaction context\n- Roll back transaction on error/exception\n- Log transaction boundaries and errors for observability\n- Add unit/integration tests for transaction boundaries and rollback scenarios",
-          "status": "pending",
+          "status": "done",
           "dependencies": [],
           "parentTaskId": 8
         },
@@ -515,7 +515,7 @@
           "title": "Write Unit and Integration Tests for Transaction Processing",
           "description": "Develop comprehensive unit and integration tests for all transaction processing logic in the core module. Cover edge cases, error handling, and business rules.",
           "details": "- Write unit tests for TransactionService (price validation, retry logic, error handling)\n- Write integration tests for TransactionController (end-to-end transaction flow)\n- Test edge cases: price out of range, insufficient funds, concurrent transactions, DB errors\n- Test rollback and atomicity via transaction interceptor\n- Use mocks for external dependencies (e.g., stock price service)\n- Ensure high code coverage and robust error reporting",
-          "status": "pending",
+          "status": "done",
           "dependencies": [],
           "parentTaskId": 8
         }
@@ -525,7 +525,7 @@
       "id": 9,
       "title": "Transaction API Endpoints",
       "description": "Create endpoints for executing stock purchase transactions",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         8
       ],

@@ -11,7 +11,7 @@ Create a service to process stock purchase transactions. Implement price validat
 Write unit tests for price validation logic. Test transaction processing with various scenarios. Verify portfolio updates after transactions.
 
 # Subtasks:
-## 1. Design Transaction Processing Service structure and DTOs [pending]
+## 1. Design Transaction Processing Service structure and DTOs [done]
 ### Dependencies: None
 ### Description: Define the structure for the transaction processing service in the core module. Create DTOs for transaction requests and responses. Plan controller, service, repository, and test structure. Ensure all code is placed in the core module.
 ### Details:
@@ -22,7 +22,7 @@ Write unit tests for price validation logic. Test transaction processing with va
 - Ensure all files are placed in the core module
 - Prepare for DB transaction handling using NestJS interceptors
 
-## 2. Implement Transaction Controller and Endpoints [pending]
+## 2. Implement Transaction Controller and Endpoints [done]
 ### Dependencies: None
 ### Description: Create a controller in the core module for transaction processing. Implement POST /transactions endpoint for stock purchase. Integrate with the service layer. Use DTOs for request/response validation. Prepare for DB transaction handling via interceptor.
 ### Details:
@@ -34,7 +34,7 @@ Write unit tests for price validation logic. Test transaction processing with va
 - Return appropriate HTTP status codes and error messages
 - Add Swagger/OpenAPI decorators if needed
 
-## 3. Implement Transaction Service with Price Validation and Retry Logic [pending]
+## 3. Implement Transaction Service with Price Validation and Retry Logic [done]
 ### Dependencies: None
 ### Description: Create a TransactionService in the core module. Implement price validation logic (must be within 2% of current price). Implement retry mechanism for failed transactions. Integrate with repository and portfolio update logic. Use database transactions for atomicity.
 ### Details:
@@ -47,7 +47,7 @@ Write unit tests for price validation logic. Test transaction processing with va
 - Throw appropriate exceptions for business rule violations
 - Prepare for DB transaction handling using NestJS interceptor
 
-## 4. Implement Transaction Repository Methods [pending]
+## 4. Implement Transaction Repository Methods [done]
 ### Dependencies: None
 ### Description: Extend the TransactionRepository in the core module to support transaction recording and retrieval. Ensure methods support atomic operations and are compatible with TypeORM transactions.
 ### Details:
@@ -57,7 +57,7 @@ Write unit tests for price validation logic. Test transaction processing with va
 - Integrate with TransactionService
 - Prepare for use with NestJS transaction interceptor
 
-## 5. Implement Database Transaction Interceptor [pending]
+## 5. Implement Database Transaction Interceptor [done]
 ### Dependencies: None
 ### Description: Create a NestJS interceptor in the core module to handle database transactions for transaction processing endpoints. Ensure all operations in the transaction flow are atomic and rolled back on error.
 ### Details:
@@ -68,7 +68,7 @@ Write unit tests for price validation logic. Test transaction processing with va
 - Log transaction boundaries and errors for observability
 - Add unit/integration tests for transaction boundaries and rollback scenarios
 
-## 6. Write Unit and Integration Tests for Transaction Processing [pending]
+## 6. Write Unit and Integration Tests for Transaction Processing [done]
 ### Dependencies: None
 ### Description: Develop comprehensive unit and integration tests for all transaction processing logic in the core module. Cover edge cases, error handling, and business rules.
 ### Details:

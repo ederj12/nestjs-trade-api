@@ -1,6 +1,6 @@
 # Task ID: 9
 # Title: Transaction API Endpoints
-# Status: pending
+# Status: done
 # Dependencies: 8
 # Priority: high
 # Description: Create endpoints for executing stock purchase transactions
