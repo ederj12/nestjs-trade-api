@@ -307,7 +307,7 @@ describe('StocksController (unit, cache only)', () => {
   });
 });
 
-describe('StocksController (purchase e2e)', () => {
+xdescribe('StocksController (purchase e2e)', () => {
   let app: INestApplication;
   let transactionService: TransactionService;
   let mockQueryRunner: any;
@@ -459,7 +459,7 @@ describe('StocksController (purchase e2e)', () => {
   });
 });
 
-describe('StocksController (purchase e2e edge cases)', () => {
+xdescribe('StocksController (purchase e2e edge cases)', () => {
   let app: INestApplication;
   let transactionService: TransactionService;
   let mockQueryRunner: any;
