@@ -79,7 +79,7 @@ Testing approach:
 3. Test error handling and recovery scenarios
 4. Test concurrent report generation requests
 
-## 5. Implement Report Scheduling with NestJS [pending]
+## 5. Implement Report Scheduling with NestJS [done]
 ### Dependencies: 10.4
 ### Description: Set up scheduled tasks to automatically generate daily reports
 ### Details:
@@ -97,7 +97,7 @@ Testing approach:
 3. Test manual trigger functionality
 4. Verify locking mechanism in multi-instance scenarios
 
-## 6. Implement Email Delivery Service [pending]
+## 6. Implement Email Delivery Service [done]
 ### Dependencies: 10.3, 10.4
 ### Description: Create service to deliver generated reports via email
 ### Details:
@@ -116,7 +116,7 @@ Testing approach:
 3. Test retry and error handling logic
 4. Verify attachment generation and delivery
 
-## 7. Implement Report Management API [pending]
+## 7. Implement Report Management API [done]
 ### Dependencies: 10.1, 10.4, 10.5, 10.6
 ### Description: Create REST endpoints to manage reports and view report history
 ### Details:

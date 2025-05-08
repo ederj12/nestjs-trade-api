@@ -597,7 +597,7 @@
             4
           ],
           "details": "Implementation details:\n1. Configure NestJS Schedule module in the application\n2. Create a `ReportSchedulerService` with scheduled tasks for daily report generation\n3. Implement configurable schedule times via environment variables\n4. Add distributed locking mechanism to prevent duplicate execution in clustered environments\n5. Implement manual trigger endpoint for on-demand report generation\n6. Add monitoring for scheduled task execution\n\nTesting approach:\n1. Unit test scheduler configuration\n2. Integration test with mocked time to verify scheduling\n3. Test manual trigger functionality\n4. Verify locking mechanism in multi-instance scenarios",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 10
         },
         {
@@ -609,7 +609,7 @@
             4
           ],
           "details": "Implementation details:\n1. Create an `EmailDeliveryService` to send formatted reports\n2. Configure email transport (SMTP, SES, etc.) with appropriate settings\n3. Implement recipient management (configurable distribution lists)\n4. Add retry logic for failed email deliveries\n5. Implement tracking of delivery status\n6. Create templates for different report types\n7. Add support for attachments (CSV data exports)\n\nTesting approach:\n1. Unit test email formatting and configuration\n2. Integration test with test email accounts\n3. Test retry and error handling logic\n4. Verify attachment generation and delivery",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 10
         },
         {
@@ -623,7 +623,7 @@
             6
           ],
           "details": "Implementation details:\n1. Create a `ReportController` with endpoints for: listing reports, getting report details, triggering manual report generation, re-sending reports\n2. Implement filtering and pagination for report history\n3. Add authentication and authorization for report access\n4. Create DTOs for report requests and responses\n5. Implement input validation and error handling\n6. Add Swagger documentation for API endpoints\n\nTesting approach:\n1. Unit test controller methods with mocked services\n2. Integration test API endpoints with test database\n3. Test authentication and authorization rules\n4. Verify pagination and filtering functionality\n5. Load test with large report history",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 10
         }
       ]
