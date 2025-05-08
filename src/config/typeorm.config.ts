@@ -4,10 +4,11 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 
 import { PortfolioHolding } from '../modules/core/entities/portfolio-holding.entity';
 import { Portfolio } from '../modules/core/entities/portfolio.entity';
+import { ReportEntity } from '../modules/core/entities/report.entity';
 import { Stock } from '../modules/core/entities/stock.entity';
 import { Transaction } from '../modules/core/entities/transaction.entity';
 import { User } from '../modules/core/entities/user.entity';
-import { ReportEntity } from '../modules/core/entities/report.entity';
+
 dotenv.config();
 
 const typeOrmConfig = {
