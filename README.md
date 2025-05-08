@@ -129,7 +129,6 @@ See OpenAPI/Swagger docs (if enabled) or controller files for details.
 
 ## Additional Notes
 
-- API keys and sample credentials are in `api-keys.txt`.
 - The service uses distributed locking for scheduled jobs to prevent duplicate report generation.
 - All configuration is managed via environment variables and `@nestjs/config`.
 - For more details, see [REPORT.md](./REPORT.md).
