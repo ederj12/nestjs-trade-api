@@ -1,6 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { EmailDeliveryService } from '../services/email-delivery.service';
+
 import { SendTestEmailDto } from '../dto/send-test-email.dto';
+import { EmailDeliveryService } from '../services/email-delivery.service';
 
 /**
  * Controller for testing email delivery functionality.

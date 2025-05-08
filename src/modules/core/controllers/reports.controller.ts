@@ -1,14 +1,15 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { ReportSchedulerService } from '../jobs/report-scheduler.job';
 
+@ApiTags('reports')
 @Controller('reports')
 export class ReportsController {
   constructor(private readonly reportSchedulerService: ReportSchedulerService) {}
 
   /**
-   * Temporary endpoint to manually trigger report generation for a given date.
-   * @param body { date: string (ISO) }
+   * This endpoint is for manual report generation and is excluded from Swagger documentation.
    */
   @Post('generate')
   async triggerReport(@Body() body: { date: string }) {
@@ -25,8 +26,7 @@ export class ReportsController {
   }
 
   /**
-   * Endpoint to manually trigger the scheduled daily report generation logic (handleDailyReport).
-   * Useful for testing the scheduled report logic without waiting for the cron job.
+   * This endpoint is for manual testing of the daily report logic and is excluded from Swagger documentation.
    */
   @Post('test-daily')
   async testDailyReport() {
