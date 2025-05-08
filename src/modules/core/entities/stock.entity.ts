@@ -1,15 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Index, Relation } from 'typeorm';
+import { Entity, Column, Index } from 'typeorm';
 
-import type { PortfolioHolding } from './portfolio-holding.entity';
-import type { Transaction } from './transaction.entity';
+import { BaseEntity } from '@/modules/shared/database/entities/base.entity';
 
 @Entity('stocks')
-export class Stock {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
+export class Stock extends BaseEntity {
   @Index('IDX_stock_symbol')
-  @Column({ unique: true })
+  @Column()
   symbol!: string;
 
   @Column()
@@ -18,18 +14,16 @@ export class Stock {
   @Column('decimal', { precision: 12, scale: 2 })
   price!: number;
 
+  @Index('IDX_stock_last_updated')
   @Column({ type: 'timestamp', nullable: true })
-  lastUpdated?: Date;
+  lastUpdated!: Date;
 
-  @Column({ nullable: true })
-  sector?: string;
+  @Column()
+  sector!: string;
 
-  @Column({ nullable: true })
-  exchange?: string;
+  @Column({ default: 'USD' })
+  currency!: string;
 
-  @OneToMany('Transaction', 'stock')
-  transactions!: Relation<Transaction[]>;
-
-  @OneToMany('PortfolioHolding', 'stock')
-  holdings!: Relation<PortfolioHolding[]>;
+  @Column('decimal', { precision: 5, scale: 2 })
+  change!: number;
 }

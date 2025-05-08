@@ -26,18 +26,30 @@ async function seed() {
 
   // Seed Stocks
   const stock1 = dataSource.manager.create(Stock, {
+    id: '991a9586-9709-4c47-90c0-7ffed700b3b8',
     symbol: 'AAPL',
     name: 'Apple Inc.',
     price: 180.25,
     sector: 'Technology',
     exchange: 'NASDAQ',
+    lastUpdated: new Date(),
+    change: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    currency: 'USD',
   });
   const stock2 = dataSource.manager.create(Stock, {
+    id: 'b2b2b2b2-9709-4c47-90c0-7ffed700b3b8',
     symbol: 'TSLA',
     name: 'Tesla Inc.',
     price: 720.5,
     sector: 'Automotive',
     exchange: 'NASDAQ',
+    lastUpdated: new Date(),
+    change: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    currency: 'USD',
   });
   await dataSource.manager.save([stock1, stock2]);
 

@@ -7,19 +7,30 @@ import {
   ValidationPipe,
   HttpException,
   HttpStatus,
+  Post,
+  Body,
+  UseInterceptors,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 
-import { GetStockParamDto } from './dto/get-stock-param.dto';
-import { GetStocksQueryDto } from './dto/get-stocks-query.dto';
-import { CachedStockData } from './models/cached-stock-data.type';
-import { StockCacheService } from './services';
+import { GetStockParamDto } from '../dto/get-stock-param.dto';
+import { GetStocksQueryDto } from '../dto/get-stocks-query.dto';
+import { StockPurchaseRequestDto } from '../dto/stock-purchase-request.dto';
+import { StockPurchaseResponseDto } from '../dto/stock-purchase-response.dto';
+import { TransactionInterceptor } from '../interceptors/transaction.interceptor';
+import { StockCacheService } from '../services';
+import { TransactionService } from '../services/transaction.service';
 
 /**
  * Controller for stock listing endpoints.
  */
 @Controller('stocks')
 export class StocksController {
-  constructor(private readonly stockCacheService: StockCacheService) {}
+  constructor(
+    private readonly stockCacheService: StockCacheService,
+    private readonly transactionService: TransactionService,
+  ) {}
 
   /**
    * GET /stocks/stats - Get cache statistics
@@ -35,7 +46,7 @@ export class StocksController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async getStocks(@Query() query: GetStocksQueryDto) {
     // Get all stocks from cache
-    const allStocks: CachedStockData[] = Array.from(this.stockCacheService['cache'].values());
+    const allStocks = Array.from(this.stockCacheService['cache'].values());
     const total = allStocks.length;
     const page = query.page || 1;
     const limit = query.limit || 20;
@@ -62,5 +73,18 @@ export class StocksController {
       );
     }
     return { data: stock };
+  }
+
+  /**
+   * POST /stocks/purchase - Purchase stock (create transaction)
+   */
+  @Post('purchase')
+  @UseInterceptors(TransactionInterceptor)
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async purchaseStock(
+    @Body() dto: StockPurchaseRequestDto,
+    @Req() req: Request,
+  ): Promise<StockPurchaseResponseDto> {
+    return this.transactionService.processStockPurchase(dto, req.queryRunner!);
   }
 }
