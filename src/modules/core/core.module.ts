@@ -19,11 +19,18 @@ import { UserRepository } from '@/modules/core/repositories/user.repository';
 import { StockCacheService } from '@/modules/core/services/stock-cache.service';
 import { TransactionService } from '@/modules/core/services/transaction.service';
 import { VendorModule } from '@/modules/shared/vendor/vendor.module';
-
+import { ReportGenerationService } from './services/report-generation.service';
+import { ReportFormattingService } from './services/report-formatting.service';
+import { ReportAggregationService } from './services/report-aggregation.service';
+import { ReportRepository } from './repositories/report.repository';
+import { TransactionRepository } from '@/modules/core/repositories';
+import { ReportsController } from './controllers/reports.controller';
+import { ReportSchedulerService } from '@/modules/core/services/report-scheduler.service';
+import { ReportEntity } from '@/modules/core/entities/report.entity';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    TypeOrmModule.forFeature([Portfolio, PortfolioHolding, User, Transaction, Stock]),
+    TypeOrmModule.forFeature([Portfolio, PortfolioHolding, User, Transaction, Stock, ReportEntity]),
     VendorModule,
   ],
   providers: [
@@ -35,8 +42,14 @@ import { VendorModule } from '@/modules/shared/vendor/vendor.module';
     TransactionService,
     UserRepository,
     StockRepository,
+    ReportGenerationService,
+    ReportFormattingService,
+    ReportAggregationService,
+    ReportRepository,
+    TransactionRepository,
+    ReportSchedulerService,
   ],
   exports: [PortfolioService, StockCacheService],
-  controllers: [PortfoliosController, StocksController],
+  controllers: [PortfoliosController, StocksController, ReportsController],
 })
 export class CoreModule {}

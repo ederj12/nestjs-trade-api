@@ -7,7 +7,7 @@ import { Portfolio } from '../modules/core/entities/portfolio.entity';
 import { Stock } from '../modules/core/entities/stock.entity';
 import { Transaction } from '../modules/core/entities/transaction.entity';
 import { User } from '../modules/core/entities/user.entity';
-
+import { ReportEntity } from '../modules/core/entities/report.entity';
 dotenv.config();
 
 const typeOrmConfig = {
@@ -17,7 +17,7 @@ const typeOrmConfig = {
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'fuse_finance',
-  entities: [User, Portfolio, PortfolioHolding, Stock, Transaction],
+  entities: [User, Portfolio, PortfolioHolding, Stock, Transaction, ReportEntity],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
