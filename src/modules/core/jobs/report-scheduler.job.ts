@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
+
 import { ReportGenerationService } from '../services/report-generation.service';
 
 @Injectable()

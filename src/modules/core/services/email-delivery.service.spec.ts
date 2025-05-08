@@ -1,5 +1,6 @@
-import { EmailDeliveryService, EmailPayload } from './email-delivery.service';
 import * as nodemailer from 'nodemailer';
+
+import { EmailDeliveryService, EmailPayload } from './email-delivery.service';
 
 jest.mock('nodemailer');
 

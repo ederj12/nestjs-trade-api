@@ -1,10 +1,12 @@
-import { ReportGenerationService } from './report-generation.service';
+import { DataSource, EntityManager } from 'typeorm';
+
+import { ReportEntity, ReportEmailDeliveryStatus } from '../entities/report.entity';
+import { ReportRepository } from '../repositories/report.repository';
+
+import { EmailDeliveryService } from './email-delivery.service';
 import { ReportAggregationService } from './report-aggregation.service';
 import { ReportFormattingService } from './report-formatting.service';
-import { ReportRepository } from '../repositories/report.repository';
-import { DataSource, EntityManager } from 'typeorm';
-import { EmailDeliveryService } from './email-delivery.service';
-import { ReportEntity, ReportEmailDeliveryStatus } from '../entities/report.entity';
+import { ReportGenerationService } from './report-generation.service';
 
 describe('ReportGenerationService', () => {
   let service: ReportGenerationService;

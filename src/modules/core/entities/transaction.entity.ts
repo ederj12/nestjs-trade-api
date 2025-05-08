@@ -52,4 +52,7 @@ export class Transaction extends BaseEntity {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   timestamp!: Date;
+
+  @Column('jsonb', { nullable: true })
+  vendorResponse?: any;
 }

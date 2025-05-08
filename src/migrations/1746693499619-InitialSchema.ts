@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class InitialSchema1746657488641 implements MigrationInterface {
-  name = 'InitialSchema1746657488641';
+export class InitialSchema1746693499619 implements MigrationInterface {
+  name = 'InitialSchema1746693499619';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -12,7 +12,7 @@ export class InitialSchema1746657488641 implements MigrationInterface {
     );
     await queryRunner.query(`CREATE INDEX "IDX_portfolio_userId" ON "portfolios" ("userId") `);
     await queryRunner.query(
-      `CREATE TABLE "stocks" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "symbol" character varying NOT NULL, "name" character varying NOT NULL, "price" numeric(12,2) NOT NULL, "lastUpdated" TIMESTAMP, "sector" character varying NOT NULL, "currency" character varying NOT NULL, "change" integer NOT NULL, CONSTRAINT "PK_b5b1ee4ac914767229337974575" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "stocks" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "symbol" character varying NOT NULL, "name" character varying NOT NULL, "price" numeric(12,2) NOT NULL, "lastUpdated" TIMESTAMP, "sector" character varying NOT NULL, "currency" character varying NOT NULL DEFAULT 'USD', "change" numeric(5,2) NOT NULL, CONSTRAINT "PK_b5b1ee4ac914767229337974575" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(`CREATE INDEX "IDX_stock_symbol" ON "stocks" ("symbol") `);
     await queryRunner.query(`CREATE INDEX "IDX_stock_last_updated" ON "stocks" ("lastUpdated") `);
@@ -21,7 +21,7 @@ export class InitialSchema1746657488641 implements MigrationInterface {
       `CREATE TYPE "public"."transactions_status_enum" AS ENUM('PENDING', 'COMPLETED', 'FAILED')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "transactions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "userId" uuid NOT NULL, "stockId" uuid NOT NULL, "portfolioId" uuid NOT NULL, "quantity" integer NOT NULL, "price" numeric(12,2) NOT NULL, "type" "public"."transactions_type_enum" NOT NULL, "status" "public"."transactions_status_enum" NOT NULL DEFAULT 'PENDING', "timestamp" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_a219afd8dd77ed80f5a862f1db9" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "transactions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "userId" uuid NOT NULL, "stockId" uuid NOT NULL, "portfolioId" uuid NOT NULL, "quantity" integer NOT NULL, "price" numeric(12,2) NOT NULL, "type" "public"."transactions_type_enum" NOT NULL, "status" "public"."transactions_status_enum" NOT NULL DEFAULT 'PENDING', "timestamp" TIMESTAMP NOT NULL DEFAULT now(), "vendorResponse" jsonb, CONSTRAINT "PK_a219afd8dd77ed80f5a862f1db9" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_transaction_timestamp" ON "transactions" ("timestamp") `,
@@ -33,6 +33,13 @@ export class InitialSchema1746657488641 implements MigrationInterface {
       `CREATE TABLE "users" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "name" character varying NOT NULL, "email" character varying NOT NULL, CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(`CREATE INDEX "IDX_user_email" ON "users" ("email") `);
+    await queryRunner.query(
+      `CREATE TABLE "reports" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "reportDate" date NOT NULL, "generatedAt" TIMESTAMP NOT NULL DEFAULT now(), "reportType" character varying(64) NOT NULL, "status" character varying(32) NOT NULL, "totalTransactions" integer NOT NULL, "successfulTransactions" integer NOT NULL, "failedTransactions" integer NOT NULL, "reportData" jsonb NOT NULL, "emailDeliveryStatus" character varying(32) NOT NULL, CONSTRAINT "PK_d9013193989303580053c0b5ef6" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(`CREATE INDEX "IDX_report_status" ON "reports" ("status") `);
+    await queryRunner.query(
+      `CREATE UNIQUE INDEX "IDX_report_reportDate" ON "reports" ("reportDate") `,
+    );
     await queryRunner.query(
       `ALTER TABLE "portfolio_holdings" ADD CONSTRAINT "FK_65b5e59d80a8a0fd9044c1ea32c" FOREIGN KEY ("portfolioId") REFERENCES "portfolios"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
@@ -72,6 +79,9 @@ export class InitialSchema1746657488641 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "portfolio_holdings" DROP CONSTRAINT "FK_65b5e59d80a8a0fd9044c1ea32c"`,
     );
+    await queryRunner.query(`DROP INDEX "public"."IDX_report_reportDate"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_report_status"`);
+    await queryRunner.query(`DROP TABLE "reports"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_user_email"`);
     await queryRunner.query(`DROP TABLE "users"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_transaction_user_stock"`);

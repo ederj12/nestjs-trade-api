@@ -78,13 +78,13 @@ docker-compose up -d
 ```
 
 - Postgres: available on `${DB_PORT}`
-- pgAdmin: [http://localhost:5050](http://localhost:5050) (Email: admin@fuse.finance, Password: admin)
 
 ### 4. Install Dependencies & Run App
 
 ```bash
 npm install
-npm run build
+npm run migration:run
+nom run seed
 npm run start:dev
 ```
 

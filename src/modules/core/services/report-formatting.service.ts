@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+
 import { ReportAggregationResultDto } from './report-aggregation.service';
 
 @Injectable()
