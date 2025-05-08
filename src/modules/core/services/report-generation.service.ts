@@ -1,10 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { DataSource, QueryFailedError, EntityManager } from 'typeorm';
+
+import { ReportEntity, ReportEmailDeliveryStatus } from '../entities/report.entity';
+import { ReportRepository } from '../repositories/report.repository';
+
+import { EmailDeliveryService, EmailPayload } from './email-delivery.service';
 import { ReportAggregationService } from './report-aggregation.service';
 import { ReportFormattingService } from './report-formatting.service';
-import { ReportRepository } from '../repositories/report.repository';
-import { DataSource, QueryFailedError, EntityManager } from 'typeorm';
-import { ReportEntity, ReportEmailDeliveryStatus } from '../entities/report.entity';
-import { EmailDeliveryService, EmailPayload } from './email-delivery.service';
 
 @Injectable()
 export class ReportGenerationService {

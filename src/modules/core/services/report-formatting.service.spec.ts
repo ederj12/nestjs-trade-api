@@ -1,5 +1,5 @@
-import { ReportFormattingService } from './report-formatting.service';
 import { ReportAggregationResultDto } from './report-aggregation.service';
+import { ReportFormattingService } from './report-formatting.service';
 
 describe('ReportFormattingService', () => {
   let service: ReportFormattingService;

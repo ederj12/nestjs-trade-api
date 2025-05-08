@@ -1,6 +1,7 @@
-import { ReportAggregationService, ReportAggregationResultDto } from './report-aggregation.service';
-import { TransactionRepository } from '../repositories/transaction.repository';
 import { TransactionStatus, TransactionType } from '../entities/transaction.entity';
+import { TransactionRepository } from '../repositories/transaction.repository';
+
+import { ReportAggregationService } from './report-aggregation.service';
 
 describe('ReportAggregationService', () => {
   let service: ReportAggregationService;

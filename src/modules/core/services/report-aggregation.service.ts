@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Between } from 'typeorm';
+
+import { TransactionStatus } from '../entities/transaction.entity';
 import { TransactionRepository } from '../repositories/transaction.repository';
-import { Transaction, TransactionStatus, TransactionType } from '../entities/transaction.entity';
 
 export interface ReportAggregationResultDto {
   totalTransactions: number;
