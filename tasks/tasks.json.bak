@@ -300,20 +300,134 @@
       ],
       "priority": "high",
       "details": "Implement REST endpoints for: GET /stocks (list all stocks with pagination), GET /stocks/:id (get single stock details). Handle query parameters for pagination. Implement DTO validation. Return appropriate HTTP status codes and error messages. Use the caching mechanism to optimize response times.",
-      "testStrategy": "Write integration tests for each endpoint. Test pagination functionality. Verify response formats and status codes."
+      "testStrategy": "Write integration tests for each endpoint. Test pagination functionality. Verify response formats and status codes.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Design DTOs and Validation for Stock Endpoints",
+          "description": "Define DTOs for query parameters (pagination: page, limit, etc.) and path parameters (stock ID). Add class-validator decorators for input validation. Use class-transformer for type conversion.",
+          "details": "\n\n<info added on 2025-05-05T04:28:12.545Z>\n```typescript\n// StockQueryParamsDto\nexport class StockQueryParamsDto {\n  @IsOptional()\n  @IsInt()\n  @Min(1)\n  @Type(() => Number)\n  page?: number = 1;\n\n  @IsOptional()\n  @IsInt()\n  @Min(1)\n  @Max(100)\n  @Type(() => Number)\n  limit?: number = 20;\n\n  @IsOptional()\n  @IsString()\n  @IsIn(['name', 'symbol', 'price', 'createdAt'])\n  sortBy?: string = 'createdAt';\n\n  @IsOptional()\n  @IsString()\n  @IsIn(['asc', 'desc'])\n  order?: 'asc' | 'desc' = 'desc';\n\n  @IsOptional()\n  @IsString()\n  search?: string;\n}\n\n// StockParamsDto\nexport class StockParamsDto {\n  @IsUUID(4)\n  @Type(() => String)\n  id: string;\n}\n\n// StockCreateDto\nexport class StockCreateDto {\n  @IsNotEmpty()\n  @IsString()\n  @MaxLength(100)\n  name: string;\n\n  @IsNotEmpty()\n  @IsString()\n  @MaxLength(10)\n  symbol: string;\n\n  @IsNotEmpty()\n  @IsNumber()\n  @Min(0)\n  @Type(() => Number)\n  price: number;\n\n  @IsOptional()\n  @IsString()\n  @MaxLength(500)\n  description?: string;\n}\n\n// StockUpdateDto\nexport class StockUpdateDto {\n  @IsOptional()\n  @IsString()\n  @MaxLength(100)\n  name?: string;\n\n  @IsOptional()\n  @IsString()\n  @MaxLength(10)\n  symbol?: string;\n\n  @IsOptional()\n  @IsNumber()\n  @Min(0)\n  @Type(() => Number)\n  price?: number;\n\n  @IsOptional()\n  @IsString()\n  @MaxLength(500)\n  description?: string;\n}\n\n// Implementation notes:\n// 1. Import required decorators:\n//    import { IsInt, IsString, IsOptional, Min, Max, IsIn, IsUUID, IsNotEmpty, IsNumber, MaxLength } from 'class-validator';\n//    import { Type } from 'class-transformer';\n// \n// 2. Apply validation pipe globally in main.ts:\n//    app.useGlobalPipes(new ValidationPipe({\n//      transform: true,\n//      whitelist: true,\n//      forbidNonWhitelisted: true,\n//    }));\n//\n// 3. Use DTOs in controller methods:\n//    @Get()\n//    findAll(@Query() queryParams: StockQueryParamsDto) { ... }\n//\n//    @Get(':id')\n//    findOne(@Param() params: StockParamsDto) { ... }\n```\n</info added on 2025-05-05T04:28:12.545Z>",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 5
+        },
+        {
+          "id": 2,
+          "title": "Implement GET /stocks Endpoint (with Pagination)",
+          "description": "Create a controller method for GET /stocks. Use DTO for pagination query. Integrate with StockCacheService for fast retrieval. Implement pagination logic (slice or paginate cached/DB results). Return paginated response with metadata (total, page, limit, etc.).",
+          "details": "\n\n<info added on 2025-05-05T04:28:40.290Z>\n```typescript\n// DTO for pagination query\nexport class StockPaginationDto {\n  @IsOptional()\n  @IsInt()\n  @Min(1)\n  @Type(() => Number)\n  page?: number = 1;\n\n  @IsOptional()\n  @IsInt()\n  @Min(1)\n  @Max(100)\n  @Type(() => Number)\n  limit?: number = 20;\n\n  @IsOptional()\n  @IsString()\n  sortBy?: string = 'symbol';\n\n  @IsOptional()\n  @IsEnum(['asc', 'desc'])\n  sortDirection?: 'asc' | 'desc' = 'asc';\n}\n\n// Controller implementation\n@Controller('stocks')\nexport class StocksController {\n  constructor(\n    private readonly stockService: StockService,\n    private readonly stockCacheService: StockCacheService,\n  ) {}\n\n  @Get()\n  async getStocks(@Query() paginationDto: StockPaginationDto): Promise<PaginatedResponse<Stock>> {\n    // Get total count and stocks from cache if available\n    const cachedStocks = await this.stockCacheService.getAllStocks();\n    \n    // Apply sorting\n    const sortedStocks = this.applySorting(cachedStocks, paginationDto.sortBy, paginationDto.sortDirection);\n    \n    // Apply pagination\n    const { page, limit } = paginationDto;\n    const startIndex = (page - 1) * limit;\n    const endIndex = startIndex + limit;\n    const paginatedStocks = sortedStocks.slice(startIndex, endIndex);\n    \n    // Return paginated response with metadata\n    return {\n      data: paginatedStocks,\n      meta: {\n        total: cachedStocks.length,\n        page,\n        limit,\n        totalPages: Math.ceil(cachedStocks.length / limit),\n      }\n    };\n  }\n\n  private applySorting(stocks: Stock[], sortBy: string, sortDirection: 'asc' | 'desc'): Stock[] {\n    return [...stocks].sort((a, b) => {\n      const aValue = a[sortBy];\n      const bValue = b[sortBy];\n      \n      if (sortDirection === 'asc') {\n        return aValue > bValue ? 1 : -1;\n      } else {\n        return aValue < bValue ? 1 : -1;\n      }\n    });\n  }\n}\n\n// Response interface\ninterface PaginatedResponse<T> {\n  data: T[];\n  meta: {\n    total: number;\n    page: number;\n    limit: number;\n    totalPages: number;\n  };\n}\n```\n\nImplementation notes:\n1. Use class-validator and class-transformer for DTO validation\n2. Implement fallback to database if cache is unavailable\n3. Consider adding ETag support for HTTP caching\n4. Add error handling for invalid pagination parameters\n5. Consider implementing filtering options (by sector, price range, etc.)\n6. Add Swagger documentation for the endpoint\n</info added on 2025-05-05T04:28:40.290Z>",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 5
+        },
+        {
+          "id": 3,
+          "title": "Implement GET /stocks/:id Endpoint",
+          "description": "Create a controller method for GET /stocks/:id. Use DTO for path param validation. Retrieve stock details from cache (or DB as fallback). Return 404 if not found.",
+          "details": "\n\n<info added on 2025-05-05T04:28:58.805Z>\n```typescript\n// Implementation details for GET /stocks/:id endpoint\n\n// 1. DTO for validation\nexport class StockIdParamDto {\n  @IsString()\n  @IsNotEmpty()\n  @Transform(({ value }) => value.toUpperCase())\n  id: string;\n}\n\n// 2. Controller method implementation\n@Get(':id')\n@ApiOperation({ summary: 'Get stock details by ticker symbol' })\n@ApiParam({ name: 'id', description: 'Stock ticker symbol (e.g., AAPL)' })\n@ApiResponse({ status: 200, description: 'Stock details retrieved successfully', type: StockResponseDto })\n@ApiResponse({ status: 404, description: 'Stock not found' })\nasync getStockById(@Param() params: StockIdParamDto): Promise<StockResponseDto> {\n  // Try cache first\n  const cachedStock = await this.cacheManager.get<StockResponseDto>(`stock:${params.id}`);\n  \n  if (cachedStock) {\n    this.logger.debug(`Cache hit for stock ${params.id}`);\n    return cachedStock;\n  }\n  \n  // Cache miss, query database\n  this.logger.debug(`Cache miss for stock ${params.id}, querying database`);\n  const stock = await this.stocksService.findById(params.id);\n  \n  if (!stock) {\n    throw new NotFoundException(`Stock with ID ${params.id} not found`);\n  }\n  \n  // Store in cache for future requests (TTL: 5 minutes)\n  await this.cacheManager.set(`stock:${params.id}`, stock, 300);\n  \n  return stock;\n}\n\n// 3. Service method\nasync findById(id: string): Promise<StockEntity | null> {\n  return this.stockRepository.findOne({ where: { ticker: id } });\n}\n```\n</info added on 2025-05-05T04:28:58.805Z>",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 5
+        },
+        {
+          "id": 4,
+          "title": "Error Handling and Status Codes",
+          "description": "Ensure endpoints return appropriate HTTP status codes: 200 for success, 400 for invalid input, 404 for not found, 500 for server errors. Standardize error response format.",
+          "details": "\n\n<info added on 2025-05-05T04:29:19.411Z>\n## Error Handling Implementation Details\n\n### HTTP Status Code Implementation\n- Use 201 for successful resource creation operations\n- Use 204 for successful operations that don't return content\n- Use 401 for authentication failures\n- Use 403 for authorization failures (authenticated but not permitted)\n- Use 409 for conflicts (e.g., duplicate resources)\n- Use 422 for validation errors (syntactically correct but semantically invalid)\n\n### Standardized Error Response Format\n```json\n{\n  \"error\": {\n    \"status\": 400,\n    \"code\": \"INVALID_INPUT\",\n    \"message\": \"The request contains invalid parameters\",\n    \"details\": [\n      {\n        \"field\": \"email\",\n        \"message\": \"Must be a valid email address\"\n      }\n    ]\n  }\n}\n```\n\n### Implementation Guidelines\n- Create a centralized error handling middleware to catch exceptions\n- Implement custom error classes that map to specific HTTP status codes\n- Log all 5xx errors with stack traces for debugging\n- Don't expose sensitive information in error messages\n- Include correlation IDs in responses for tracking issues across services\n- For validation errors, clearly indicate which fields failed and why\n\n### Testing Requirements\n- Write tests for each error condition\n- Verify correct status codes and response formats\n- Test error handling for edge cases (null inputs, malformed data)\n</info added on 2025-05-05T04:29:19.411Z>",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 5
+        },
+        {
+          "id": 5,
+          "title": "Integration with Caching Mechanism",
+          "description": "Ensure both endpoints use StockCacheService for reads. Fallback to DB if cache miss (if DB layer is implemented). Optionally, add cache headers (ETag, Cache-Control) to responses.",
+          "details": "\n\n<info added on 2025-05-05T04:29:38.583Z>\n# Cache Integration Implementation Details\n\n## StockCacheService Integration\n- Inject `StockCacheService` into both controller classes using constructor injection\n- Implement a \"cache-first\" strategy in both endpoints:\n  ```typescript\n  // Example pattern for GET /api/stocks/:symbol\n  async getStockBySymbol(symbol: string): Promise<StockData> {\n    // Try cache first\n    const cachedData = await this.stockCacheService.get(symbol);\n    if (cachedData) {\n      return cachedData;\n    }\n    \n    // Cache miss - fetch from database\n    const dbData = await this.stockRepository.findBySymbol(symbol);\n    \n    // Update cache with fresh data\n    if (dbData) {\n      await this.stockCacheService.set(symbol, dbData);\n    }\n    \n    return dbData;\n  }\n  ```\n\n## HTTP Cache Headers Implementation\n- Generate ETag based on data version or content hash:\n  ```typescript\n  import { createHash } from 'crypto';\n  \n  function generateETag(data: any): string {\n    const hash = createHash('md5')\n      .update(JSON.stringify(data))\n      .digest('hex');\n    return `\"${hash}\"`;\n  }\n  ```\n- Add cache headers to response:\n  ```typescript\n  @Get(':symbol')\n  async getStock(@Param('symbol') symbol: string, @Res() response: Response) {\n    const data = await this.stockService.getStockBySymbol(symbol);\n    const etag = generateETag(data);\n    \n    response\n      .set({\n        'ETag': etag,\n        'Cache-Control': 'public, max-age=60',\n      })\n      .json(data);\n  }\n  ```\n\n## Cache Invalidation Strategy\n- Implement cache invalidation when stock data is updated\n- Consider using a TTL (Time-To-Live) strategy for cache entries (e.g., 5 minutes)\n- For the search endpoint, use composite keys like `search:${query}:${limit}` for caching\n</info added on 2025-05-05T04:29:38.583Z>",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 5
+        },
+        {
+          "id": 6,
+          "title": "Integration Tests",
+          "description": "Write integration tests for: GET /stocks (pagination, edge cases), GET /stocks/:id (valid/invalid IDs, not found), error scenarios and response formats.",
+          "details": "\n\n<info added on 2025-05-05T04:29:57.246Z>\n# Integration Test Implementation Details\n\n## Test Setup\n- Use Jest with Supertest for HTTP assertions\n- Create a test database setup/teardown in `beforeAll`/`afterAll` hooks\n- Seed test data with known stocks for predictable test results\n\n## GET /stocks Tests\n- Test default pagination (first page, default limit)\n- Test custom page and limit parameters\n- Test exceeding available pages returns empty array\n- Test invalid pagination parameters return 400 error\n- Test sorting functionality (if implemented)\n- Test filtering functionality (if implemented)\n\n## GET /stocks/:id Tests\n- Test retrieving existing stock returns 200 with correct data\n- Test non-existent ID returns 404\n- Test malformed ID format returns 400\n- Test ID with correct format but invalid characters\n\n## Error Scenario Tests\n- Test server errors (500) using mocked failures\n- Verify error response format matches API specification:\n  ```json\n  {\n    \"error\": {\n      \"code\": \"ERROR_CODE\",\n      \"message\": \"Human readable message\"\n    }\n  }\n  ```\n- Test rate limiting behavior (if implemented)\n\n## Response Format Tests\n- Verify all successful responses match documented schema\n- Verify timestamps are in ISO format\n- Verify numeric fields have correct precision\n\n## Example Test Case\n```javascript\ndescribe('GET /stocks', () => {\n  it('returns paginated results with default parameters', async () => {\n    const response = await request(app).get('/stocks');\n    expect(response.status).toBe(200);\n    expect(response.body).toHaveProperty('data');\n    expect(response.body).toHaveProperty('pagination');\n    expect(Array.isArray(response.body.data)).toBe(true);\n    // Additional assertions...\n  });\n});\n```\n</info added on 2025-05-05T04:29:57.246Z>",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 5
+        }
+      ]
     },
     {
       "id": 6,
       "title": "Portfolio Management Service",
       "description": "Implement service for managing user stock portfolios",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         2,
         4
       ],
       "priority": "high",
       "details": "Create a service to manage user portfolios. Implement methods to retrieve, create, and update portfolio entries. Calculate portfolio valuation based on current stock prices. Handle edge cases like empty portfolios or invalid stock references. Ensure data consistency when updating portfolios.",
-      "testStrategy": "Write unit tests for portfolio calculations. Test edge cases and error scenarios. Verify portfolio valuation accuracy."
+      "testStrategy": "Write unit tests for portfolio calculations. Test edge cases and error scenarios. Verify portfolio valuation accuracy.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create Portfolio Data Model and Repository Interface",
+          "description": "Define the data model for portfolios and create the repository interface for CRUD operations",
+          "dependencies": [],
+          "details": "1. Define a Portfolio entity class with fields for userId, portfolioId, name, and a collection of portfolio entries (stocks)\n2. Define a PortfolioEntry entity with fields for stockSymbol, quantity, purchasePrice, and purchaseDate\n3. Create a PortfolioRepository interface with methods for findByUserId, findById, save, update, and delete\n4. Implement validation annotations on the entity classes\n5. Create necessary DTOs for API requests and responses\n6. Test the model by creating sample portfolio objects and validating constraints",
+          "status": "done",
+          "parentTaskId": 6
+        },
+        {
+          "id": 2,
+          "title": "Implement Portfolio Repository and Basic CRUD Operations",
+          "description": "Create the repository implementation and service methods for basic portfolio management",
+          "dependencies": [
+            1
+          ],
+          "details": "1. Implement the PortfolioRepository interface with a database-specific implementation\n2. Create a PortfolioService class with methods to create, retrieve, update and delete portfolios\n3. Implement error handling for cases like portfolio not found, unauthorized access\n4. Add transaction management to ensure data consistency\n5. Implement pagination for retrieving multiple portfolios\n6. Write unit tests for the service methods using mock repository\n7. Test with different scenarios including empty portfolios and invalid inputs\n\n<info added on 2025-05-05T04:38:49.511Z>\nFor this reduced scope implementation:\n\n1. Focus on implementing only two core methods in the PortfolioRepository:\n   ```java\n   Portfolio save(Portfolio portfolio);\n   Optional<Portfolio> findByUserId(String userId);\n   ```\n\n2. In PortfolioService, implement only:\n   ```java\n   public Portfolio createPortfolio(Portfolio portfolio) {\n     // Validate required fields (userId must not be null)\n     // Check if portfolio already exists for this user\n     // Save portfolio\n     return repository.save(portfolio);\n   }\n   \n   public Portfolio getPortfolioByUserId(String userId) throws PortfolioNotFoundException {\n     // Return portfolio or throw custom PortfolioNotFoundException\n     return repository.findByUserId(userId)\n       .orElseThrow(() -> new PortfolioNotFoundException(\"Portfolio not found for user: \" + userId));\n   }\n   ```\n\n3. Create a simple PortfolioNotFoundException class:\n   ```java\n   public class PortfolioNotFoundException extends RuntimeException {\n     public PortfolioNotFoundException(String message) {\n       super(message);\n     }\n   }\n   ```\n\n4. Unit test scenarios to cover:\n   - Creating a new portfolio with valid data\n   - Attempting to create a portfolio with missing userId\n   - Successfully retrieving an existing portfolio by userId\n   - Handling case when portfolio doesn't exist for a userId\n\n5. Skip implementing update, delete, pagination, and transaction management for now.\n</info added on 2025-05-05T04:38:49.511Z>\n\n<info added on 2025-05-05T04:41:19.132Z>\n<info added>\nFor implementing transaction management in the PortfolioService:\n\n1. Add the @Transactional annotation to relevant service methods:\n   ```java\n   import org.springframework.transaction.annotation.Transactional;\n   \n   @Service\n   public class PortfolioService {\n       // Existing code...\n       \n       @Transactional\n       public Portfolio createPortfolio(Portfolio portfolio) {\n           // Existing implementation\n       }\n       \n       @Transactional\n       public Portfolio updatePortfolioWithHolding(String userId, PortfolioHolding newHolding) {\n           Portfolio portfolio = getPortfolioByUserId(userId);\n           portfolio.addOrUpdateHolding(newHolding);\n           // Also record the transaction\n           transactionRepository.save(new Transaction(userId, newHolding.getSymbol(), \n                                     newHolding.getQuantity(), newHolding.getPurchasePrice()));\n           return repository.save(portfolio);\n       }\n   }\n   ```\n\n2. Implement rollback behavior for exceptions:\n   ```java\n   @Transactional(rollbackFor = {PortfolioException.class})\n   public Portfolio executeStockPurchase(String userId, String symbol, \n                                        int quantity, BigDecimal price) {\n       try {\n           Portfolio portfolio = getPortfolioByUserId(userId);\n           PortfolioHolding holding = new PortfolioHolding(symbol, quantity, price);\n           portfolio.addOrUpdateHolding(holding);\n           \n           // Record the transaction\n           Transaction transaction = new Transaction(userId, symbol, quantity, price);\n           transactionRepository.save(transaction);\n           \n           return repository.save(portfolio);\n       } catch (Exception e) {\n           throw new PortfolioException(\"Failed to complete stock purchase: \" + e.getMessage(), e);\n       }\n   }\n   ```\n\n3. Add unit tests for transaction scenarios:\n   ```java\n   @Test\n   public void testTransactionRollback_WhenTransactionSaveFails() {\n       // Setup\n       Portfolio portfolio = new Portfolio(\"user123\");\n       PortfolioHolding holding = new PortfolioHolding(\"AAPL\", 10, new BigDecimal(\"150.00\"));\n       \n       when(portfolioRepository.findByUserId(\"user123\")).thenReturn(Optional.of(portfolio));\n       when(portfolioRepository.save(any(Portfolio.class))).thenReturn(portfolio);\n       when(transactionRepository.save(any(Transaction.class))).thenThrow(new RuntimeException(\"DB error\"));\n       \n       // Execute & Verify\n       assertThrows(PortfolioException.class, () -> \n           portfolioService.executeStockPurchase(\"user123\", \"AAPL\", 10, new BigDecimal(\"150.00\")));\n       \n       // Verify transaction was rolled back (portfolio not updated)\n       verify(portfolioRepository, never()).save(any(Portfolio.class));\n   }\n   ```\n\n4. Create a custom exception for portfolio operations:\n   ```java\n   public class PortfolioException extends RuntimeException {\n       public PortfolioException(String message) {\n           super(message);\n       }\n       \n       public PortfolioException(String message, Throwable cause) {\n           super(message, cause);\n       }\n   }\n   ```\n</info added>\n</info added on 2025-05-05T04:41:19.132Z>",
+          "status": "done",
+          "parentTaskId": 6
+        },
+        {
+          "id": 3,
+          "title": "Implement Portfolio Valuation Calculation",
+          "description": "Create functionality to calculate current portfolio value based on stock prices",
+          "dependencies": [
+            2
+          ],
+          "details": "1. Create a StockPriceService interface to fetch current stock prices\n2. Implement a method in PortfolioService to calculate total portfolio value\n3. Calculate individual stock values (quantity * current price)\n4. Handle cases where stock price data is unavailable\n5. Implement caching for stock prices to improve performance\n6. Calculate portfolio performance metrics (gain/loss, percentage change)\n7. Write unit tests with mock stock price data\n8. Test edge cases like empty portfolios and portfolios with delisted stocks",
+          "status": "done",
+          "parentTaskId": 6
+        },
+        {
+          "id": 4,
+          "title": "Implement Portfolio Update Operations with Consistency Checks",
+          "description": "Create methods to update portfolio entries with validation and consistency checks",
+          "dependencies": [
+            2,
+            3
+          ],
+          "details": "1. Implement methods to add, update, and remove stocks from a portfolio\n2. Add validation for stock symbols before adding to portfolio\n3. Implement optimistic locking to prevent concurrent update issues\n4. Create transaction boundaries to ensure atomic updates\n5. Implement business rules validation (e.g., non-negative quantities)\n6. Add logging for all portfolio modifications\n7. Write unit tests for update operations including concurrent update scenarios\n8. Test with various edge cases like updating non-existent entries",
+          "status": "done",
+          "parentTaskId": 6
+        },
+        {
+          "id": 5,
+          "title": "Create REST API Endpoints for Portfolio Management",
+          "description": "Implement REST controllers to expose portfolio management functionality",
+          "dependencies": [
+            2,
+            3,
+            4
+          ],
+          "details": "1. Create a PortfolioController with endpoints for CRUD operations\n2. Implement endpoint for retrieving portfolio valuation\n3. Add request validation and proper error responses\n4. Implement pagination and sorting for portfolio listing\n5. Add authentication and authorization checks\n6. Document API endpoints using Swagger/OpenAPI\n7. Implement rate limiting for API endpoints\n8. Write integration tests for all endpoints\n9. Test performance with large portfolios",
+          "status": "done",
+          "parentTaskId": 6
+        }
+      ]
     },
     {
       "id": 7,
@@ -325,7 +439,18 @@
       ],
       "priority": "high",
       "details": "Implement REST endpoints for: GET /portfolios/:userId (get user portfolio with valuation), GET /portfolios/:userId/stocks (get detailed list of stocks in portfolio). Return appropriate HTTP status codes and error messages. Include current valuation in the response.",
-      "testStrategy": "Write integration tests for each endpoint. Verify response formats and status codes. Test with various portfolio sizes and compositions."
+      "testStrategy": "Write integration tests for each endpoint. Verify response formats and status codes. Test with various portfolio sizes and compositions.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Implement GET /portfolios/:userId and GET /portfolios/:userId/stocks endpoints in core module",
+          "description": "Create REST endpoints in the core module for retrieving a user's portfolio (with valuation) and a detailed list of stocks in the portfolio. Ensure proper HTTP status codes, error handling, and response formats. Include current valuation in the portfolio response.",
+          "details": "- Implement GET /portfolios/:userId to return the user's portfolio with current valuation.\n- Implement GET /portfolios/:userId/stocks to return a detailed list of stocks in the user's portfolio.\n- Use the PortfolioService and related services for business logic.\n- Return appropriate HTTP status codes and error messages for not found, invalid input, etc.\n- Ensure response includes current valuation (use or mock StockPriceService if needed).\n- Write integration tests for both endpoints, covering various portfolio sizes and edge cases.\n- All implementation should be in the core module.\n\n<info added on 2025-05-06T22:33:49.865Z>\n### Additional Implementation Details\n\n- Create a `StockService` class in the core module that will:\n  - Inject the `StockRepository` via constructor dependency injection\n  - Provide methods like `getStockById()`, `getStocksByIds()`, and `getCurrentPrice()`\n  - Handle data transformation between repository entities and DTOs\n\n- Implement service methods for portfolio valuation:\n  ```typescript\n  async calculatePortfolioValue(stockPositions: StockPosition[]): Promise<number> {\n    const stockIds = stockPositions.map(position => position.stockId);\n    const stocks = await this.getStocksByIds(stockIds);\n    \n    return stockPositions.reduce((total, position) => {\n      const stock = stocks.find(s => s.id === position.stockId);\n      return total + (stock.currentPrice * position.quantity);\n    }, 0);\n  }\n  ```\n\n- For testing:\n  - Create a `StockServiceMock` class in test files that mimics the real service\n  - Use Jest's `jest.mock()` to replace the real repository with test doubles\n  - Example test setup:\n    ```typescript\n    jest.mock('../repository/stock.repository');\n    \n    describe('StockService', () => {\n      let service: StockService;\n      let repository: MockType<StockRepository>;\n      \n      beforeEach(() => {\n        // Setup with mocked repository\n      });\n      \n      // Tests...\n    });\n    ```\n\n- Ensure the endpoints use proper DTO validation with class-validator decorators\n- Implement caching for stock prices to improve performance on portfolio valuation requests\n</info added on 2025-05-06T22:33:49.865Z>",
+          "status": "pending",
+          "dependencies": [],
+          "parentTaskId": 7
+        }
+      ]
     },
     {
       "id": 8,
@@ -338,13 +463,69 @@
       ],
       "priority": "high",
       "details": "Create a service to process stock purchase transactions. Implement price validation logic (within 2% of current price). Handle transaction recording and portfolio updates atomically. Implement retry mechanism for failed transactions. Use database transactions to ensure data consistency.",
-      "testStrategy": "Write unit tests for price validation logic. Test transaction processing with various scenarios. Verify portfolio updates after transactions."
+      "testStrategy": "Write unit tests for price validation logic. Test transaction processing with various scenarios. Verify portfolio updates after transactions.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Design Transaction Processing Service structure and DTOs",
+          "description": "Define the structure for the transaction processing service in the core module. Create DTOs for transaction requests and responses. Plan controller, service, repository, and test structure. Ensure all code is placed in the core module.",
+          "details": "- Design request and response DTOs for stock purchase transactions (fields: userId, stockSymbol, quantity, price, etc.)\n- Plan controller endpoints (e.g., POST /transactions)\n- Define service and repository method signatures\n- Outline integration and unit test structure\n- Ensure all files are placed in the core module\n- Prepare for DB transaction handling using NestJS interceptors",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 8
+        },
+        {
+          "id": 2,
+          "title": "Implement Transaction Controller and Endpoints",
+          "description": "Create a controller in the core module for transaction processing. Implement POST /transactions endpoint for stock purchase. Integrate with the service layer. Use DTOs for request/response validation. Prepare for DB transaction handling via interceptor.",
+          "details": "- Create TransactionController in core module\n- Implement POST /transactions endpoint\n- Use request/response DTOs for validation\n- Inject TransactionService\n- Prepare for DB transaction handling using NestJS interceptor\n- Return appropriate HTTP status codes and error messages\n- Add Swagger/OpenAPI decorators if needed",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 8
+        },
+        {
+          "id": 3,
+          "title": "Implement Transaction Service with Price Validation and Retry Logic",
+          "description": "Create a TransactionService in the core module. Implement price validation logic (must be within 2% of current price). Implement retry mechanism for failed transactions. Integrate with repository and portfolio update logic. Use database transactions for atomicity.",
+          "details": "- Create TransactionService in core\n- Implement method to process stock purchase (validate price, update portfolio, record transaction)\n- Price must be within 2% of current price (fetch from StockRepository/StockService)\n- Implement retry logic for transient failures (e.g., DB errors)\n- Use TypeORM transactions for atomicity\n- Integrate with PortfolioService for portfolio updates\n- Throw appropriate exceptions for business rule violations\n- Prepare for DB transaction handling using NestJS interceptor",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 8
+        },
+        {
+          "id": 4,
+          "title": "Implement Transaction Repository Methods",
+          "description": "Extend the TransactionRepository in the core module to support transaction recording and retrieval. Ensure methods support atomic operations and are compatible with TypeORM transactions.",
+          "details": "- Add methods to TransactionRepository for saving and retrieving transactions\n- Ensure save method supports atomic operation within a transaction\n- Add methods for querying transactions by user, stock, or date if needed\n- Integrate with TransactionService\n- Prepare for use with NestJS transaction interceptor",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 8
+        },
+        {
+          "id": 5,
+          "title": "Implement Database Transaction Interceptor",
+          "description": "Create a NestJS interceptor in the core module to handle database transactions for transaction processing endpoints. Ensure all operations in the transaction flow are atomic and rolled back on error.",
+          "details": "- Implement a NestJS interceptor for DB transaction management\n- Apply interceptor to transaction processing endpoints/controllers\n- Ensure all service/repository operations are executed within a transaction context\n- Roll back transaction on error/exception\n- Log transaction boundaries and errors for observability\n- Add unit/integration tests for transaction boundaries and rollback scenarios",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 8
+        },
+        {
+          "id": 6,
+          "title": "Write Unit and Integration Tests for Transaction Processing",
+          "description": "Develop comprehensive unit and integration tests for all transaction processing logic in the core module. Cover edge cases, error handling, and business rules.",
+          "details": "- Write unit tests for TransactionService (price validation, retry logic, error handling)\n- Write integration tests for TransactionController (end-to-end transaction flow)\n- Test edge cases: price out of range, insufficient funds, concurrent transactions, DB errors\n- Test rollback and atomicity via transaction interceptor\n- Use mocks for external dependencies (e.g., stock price service)\n- Ensure high code coverage and robust error reporting",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 8
+        }
+      ]
     },
     {
       "id": 9,
       "title": "Transaction API Endpoints",
       "description": "Create endpoints for executing stock purchase transactions",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         8
       ],
