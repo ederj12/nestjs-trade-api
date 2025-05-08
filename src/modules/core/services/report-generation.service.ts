@@ -3,7 +3,8 @@ import { ReportAggregationService } from './report-aggregation.service';
 import { ReportFormattingService } from './report-formatting.service';
 import { ReportRepository } from '../repositories/report.repository';
 import { DataSource, QueryFailedError, EntityManager } from 'typeorm';
-import { ReportEntity } from '../entities/report.entity';
+import { ReportEntity, ReportEmailDeliveryStatus } from '../entities/report.entity';
+import { EmailDeliveryService, EmailPayload } from './email-delivery.service';
 
 @Injectable()
 export class ReportGenerationService {
@@ -14,6 +15,7 @@ export class ReportGenerationService {
     private readonly formattingService: ReportFormattingService,
     private readonly reportRepository: ReportRepository,
     private readonly dataSource: DataSource,
+    private readonly emailDeliveryService: EmailDeliveryService,
   ) {}
 
   private async acquireReportLock(
@@ -30,7 +32,7 @@ export class ReportGenerationService {
         successfulTransactions: 0,
         failedTransactions: 0,
         reportData: {},
-        emailDeliveryStatus: 'PENDING',
+        emailDeliveryStatus: ReportEmailDeliveryStatus.PENDING,
       });
       await manager.save(reportEntity);
       this.logger.log('Acquired report lock (row inserted)');
@@ -92,6 +94,23 @@ export class ReportGenerationService {
         // 4. Update report entity with aggregation and formatted output, set status COMPLETED
         await this.updateReportStatus(manager, reportEntity, 'COMPLETED', aggregation, htmlReport);
         this.logger.log('Report saved to database');
+
+        // 5. Send report via email
+        try {
+          const payload: EmailPayload = {
+            subject: `Daily Transaction Report - ${start.toISOString().slice(0, 10)}`,
+            html: htmlReport,
+            text: undefined, // Optionally add text version
+          };
+          await this.emailDeliveryService.sendMail(payload);
+          reportEntity.emailDeliveryStatus = ReportEmailDeliveryStatus.SENT;
+          await manager.save(reportEntity);
+          this.logger.log('Report email sent successfully');
+        } catch (emailError) {
+          reportEntity.emailDeliveryStatus = ReportEmailDeliveryStatus.FAILED;
+          await manager.save(reportEntity);
+          this.logger.error('Failed to send report email', emailError);
+        }
       } catch (error) {
         this.logger.error('Error during report generation', error);
         if (reportEntity) {

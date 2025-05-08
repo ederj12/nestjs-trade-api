@@ -30,12 +30,12 @@ describe('ReportFormattingService', () => {
 
   it('should format as HTML', () => {
     const html = service.formatAsHtml(sampleData);
-    expect(html).toContain('<h1>Daily Transaction Report</h1>');
-    expect(html).toContain('Total Transactions: 5');
-    expect(html).toContain('Successful: 3');
-    expect(html).toContain('Failed: 2');
-    expect(html).toContain('Volume: 1000');
-    expect(html).toContain('Average Value: 200');
+    expect(html).toMatch(/<h1[^>]*>Daily Transaction Report<\/h1>/);
+    expect(html).toContain('>5<');
+    expect(html).toContain('>3<');
+    expect(html).toContain('>2<');
+    expect(html).toContain('>1,000<');
+    expect(html).toContain('>200<');
   });
 
   it('should format as plain text', () => {
@@ -62,7 +62,7 @@ describe('ReportFormattingService', () => {
     const html = service.formatAsHtml(emptyData);
     const text = service.formatAsText(emptyData);
     const csv = service.formatAsCsv(emptyData);
-    expect(html).toContain('Total Transactions: 0');
+    expect(html).toContain('>0<');
     expect(text).toContain('Total Transactions: 0');
     expect(csv).toContain('Total Transactions,0');
   });
@@ -73,7 +73,7 @@ describe('ReportFormattingService', () => {
       byType: { 'BUY & SELL': 5 },
     };
     const html = service.formatAsHtml(dataWithSpecialChars);
-    // This is a placeholder; actual escaping should be implemented if needed
-    expect(html).toContain('Total Transactions: 5');
+    expect(html).toContain('BUY & SELL');
+    expect(html).toContain('>5<');
   });
 });

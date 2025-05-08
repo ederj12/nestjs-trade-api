@@ -2,6 +2,12 @@ import { Entity, Column, Index } from 'typeorm';
 
 import { BaseEntity } from '@/modules/shared/database/entities/base.entity';
 
+export enum ReportEmailDeliveryStatus {
+  PENDING = 'PENDING',
+  SENT = 'SENT',
+  FAILED = 'FAILED',
+}
+
 @Entity('reports')
 @Index('IDX_report_reportDate', ['reportDate'], { unique: true })
 @Index('IDX_report_status', ['status'])
@@ -31,5 +37,5 @@ export class ReportEntity extends BaseEntity {
   reportData!: Record<string, unknown>;
 
   @Column({ type: 'varchar', length: 32 })
-  emailDeliveryStatus!: string;
+  emailDeliveryStatus!: ReportEmailDeliveryStatus;
 }

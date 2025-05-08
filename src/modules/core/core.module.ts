@@ -25,8 +25,9 @@ import { ReportAggregationService } from './services/report-aggregation.service'
 import { ReportRepository } from './repositories/report.repository';
 import { TransactionRepository } from '@/modules/core/repositories';
 import { ReportsController } from './controllers/reports.controller';
-import { ReportSchedulerService } from '@/modules/core/services/report-scheduler.service';
+import { ReportSchedulerService } from '@/modules/core/jobs/report-scheduler.job';
 import { ReportEntity } from '@/modules/core/entities/report.entity';
+import { EmailDeliveryService } from '@/modules/core/services/email-delivery.service';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
@@ -48,6 +49,7 @@ import { ReportEntity } from '@/modules/core/entities/report.entity';
     ReportRepository,
     TransactionRepository,
     ReportSchedulerService,
+    EmailDeliveryService,
   ],
   exports: [PortfolioService, StockCacheService],
   controllers: [PortfoliosController, StocksController, ReportsController],

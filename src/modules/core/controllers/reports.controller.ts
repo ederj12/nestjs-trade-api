@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ReportSchedulerService } from '../services/report-scheduler.service';
+import { ReportSchedulerService } from '../jobs/report-scheduler.job';
 
 @Controller('reports')
 export class ReportsController {
