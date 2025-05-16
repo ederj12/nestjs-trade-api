@@ -40,17 +40,19 @@ export class TransactionService {
     dto: StockPurchaseRequestDto,
     queryRunner: QueryRunner,
   ): Promise<StockPurchaseResponseDto> {
-    const user = await this.userRepository.findOne({ where: { id: dto.userId } });
+    // Fetch user and portfolio in parallel
+    const [user, portfolio] = await Promise.all([
+      this.userRepository.findOne({ where: { id: dto.userId } }),
+      this.portfolioRepository.findOne({ where: { userId: dto.userId } }),
+    ]);
+    const cachedStock = this.stockCacheService.getStock(dto.symbol);
+
     if (!user) {
       throw new NotFoundException(`User with id ${dto.userId} not found`);
     }
-
-    const portfolio = await this.portfolioRepository.findOne({ where: { userId: dto.userId } });
     if (!portfolio) {
       throw new NotFoundException(`Portfolio for user ${dto.userId} not found`);
     }
-
-    const cachedStock = this.stockCacheService.getStock(dto.symbol);
     if (!cachedStock) {
       throw new NotFoundException(`Stock with symbol ${dto.symbol} not found in cache`);
     }
