@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsUUID, IsInt, IsPositive, IsNumber, Min, IsString } from 'class-validator';
+import { IsUUID, IsInt, IsPositive, IsNumber, IsString } from 'class-validator';
 
 export class StockPurchaseRequestDto {
   @ApiProperty({ example: 'uuid-user', description: 'User ID' })
@@ -19,6 +19,6 @@ export class StockPurchaseRequestDto {
   @ApiProperty({ example: 150.25, description: 'Purchase price per stock' })
   @Type(() => Number)
   @IsNumber({}, { message: 'Price must be a number.' })
-  @Min(0, { message: 'Price must be at least 0.' })
+  @IsPositive({ message: 'Price must be greater than 0.' })
   price!: number;
 }
