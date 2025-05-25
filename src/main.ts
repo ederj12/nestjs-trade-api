@@ -13,7 +13,7 @@ async function bootstrap(): Promise<void> {
   const port = configService.get('PORT');
 
   const config = new DocumentBuilder()
-    .setTitle('Fuse Finance API')
+    .setTitle('Nestjs Trade API')
     .setDescription('API documentation')
     .setVersion('1.0')
     .build();

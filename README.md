@@ -1,4 +1,4 @@
-# Fuse Finance Stock Trading Backend
+# Nestjs Stock Trading Backend
 
 ## Overview
 
@@ -36,8 +36,8 @@ This service provides a backend for stock trading operations, integrating with a
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repo-url>
-cd fuse-home-task
+git clone https://github.com/ederj12/nestjs-trade-api.git
+cd nestjs-trade-api
 ```
 
 ### 2. Configure Environment Variables
@@ -50,11 +50,11 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=postgres
-DB_NAME=fuse_finance
+DB_NAME=nestjs_trade_app
 
 # Vendor API
-VENDOR_API_URL=https://api.challenge.fusefinance.com
-VENDOR_API_KEY=nSbPbFJfe95BFZufiDwF32UhqZLEVQ5K4wdtJI2e
+VENDOR_API_URL=
+VENDOR_API_KEY=
 VENDOR_API_TIMEOUT=10000
 VENDOR_API_MAX_RETRIES=3
 VENDOR_API_RETRY_DELAY=1000
@@ -97,8 +97,8 @@ npm run start:prod
 Or use Docker:
 
 ```bash
-docker build -t fuse-finance-be .
-docker run --env-file .env -p 3000:3000 fuse-finance-be
+docker build -t trade-app-be .
+docker run --env-file .env -p 3000:3000 trade-app-be
 ```
 
 ---
