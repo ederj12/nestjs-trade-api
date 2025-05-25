@@ -119,14 +119,6 @@ graph TD
 
 ---
 
-## References
-
-- See `home-task.md` for the original challenge description.
-- See `README.md` for setup and usage instructions.
-- See `api-keys.txt` for sample credentials and API keys.
-
----
-
 ## (Optional) Example tsconfig Path Alias
 
 ```json

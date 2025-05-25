@@ -17,7 +17,7 @@ const typeOrmConfig = {
   port: parseInt(process.env.DB_PORT || '5432', 10),
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
-  database: process.env.DB_NAME || 'fuse_finance',
+  database: process.env.DB_NAME || 'nestjs_trade_app',
   entities: [User, Portfolio, PortfolioHolding, Stock, Transaction, ReportEntity],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
